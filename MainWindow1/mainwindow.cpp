@@ -81,12 +81,13 @@ void MyMainWindow::changeFunc(){
     }
     ui->lineEdit->setText(QString::fromStdString(string(this->newData.num)));
     ui->label->setText(QString::fromStdString(string(this->data.val)));
+    this->validationCheck();
     this->countingFunc();
 }
 
 void MyMainWindow::validationCheck(){
-    qDebug("newData.num: %s", this->newData.num);
-    free(this->newData.num);
+    qDebug("free 25 %s", this->newData.num);
+    freeStr(this->newData.num);
     this->newData.num=upperStr(copyStr((char*)ui->lineEdit->text().toStdString().c_str()));
     if (ui->radioButton->isChecked()){
         this->newData.notationIn=2;
@@ -113,6 +114,7 @@ void MyMainWindow::countingFunc(){
     ui->label_3->clear();
     int n=0;
     char** filePath=split((char*)QDir::currentPath().toStdString().c_str(), (char*)"/", &n);
+    qDebug("free 1");
     free(filePath[n-1]);
     filePath[n-1]=copyStr((char*)"MainWindow1");
     char* image = errorImage[this->data.error];
@@ -126,12 +128,19 @@ void MyMainWindow::countingFunc(){
     QSize PicSize(300, 300);
     myPixmap = myPixmap.scaled(PicSize,Qt::KeepAspectRatio);
     ui->label_3->setPixmap( myPixmap );
+    qDebug("free 2");
     freeMatrix((void**)filePath, n);
+    qDebug("free 3");
     free(file);
 }
 
 MyMainWindow::~MyMainWindow()
 {
+
+    if(this->data.binaryNum!= this->data.val && this->data.otherNum!= this->data.val){free(this->data.val);}
+    free(this->data.binaryNum);
+    free(this->data.otherNum);
+    free(this->newData.num);
     delete ui;
 }
 

@@ -3,37 +3,32 @@
 #include<QClipboard>
 #include<QApplication>
 
-char* decNum=(char*)"-0123456789";
+
 char* hexNum=(char*)"0123456789ABCDEF";
 int copy(Data* data, NewData* newData){
     QClipboard *clipboard=QGuiApplication::clipboard();
     clipboard->setText(data->val);
-    return 0;
+    return OK;
 }
 
 int validation(Data* data, NewData* newData){
-    char* sysNat;
-    switch(newData->notationIn){
-    case 10:
-        sysNat=(char*)decNum;
-        break;
-    default:
-        sysNat=subStr(hexNum,0, newData->notationIn);
-        break;
-    }
-    for(int i=0;i<lenStr(newData->num);++i){
+    int result = OK, i=(*newData->num=='-')&&(newData->notationIn==10);
+    char* sysNat=subStr(hexNum,0, newData->notationIn);
+    for(;i<lenStr(newData->num);++i){
         if (!charInSyms(newData->num[i], sysNat)){
-            return NumberSystemEerror;
+            result= NumberSystemEerror;
+            break;
         }
     }
-    return 0;
+    freeStr(sysNat);
+    return result;
 }
 int counting(Data* data, NewData* newData){
     if (data->error){return data->error;}
-    data->val=createNewString(0, ' ');
     if(setNum(data, newData)){
         return ValueEexceded;
     }
+    freeStr(data->val);
     switch(newData->notationOut){
     case 2:
         data->val=getBin(data);
@@ -48,8 +43,14 @@ int counting(Data* data, NewData* newData){
     return OK;
 }
 int changing(Data* data, NewData* newData){
-    newData->num=getNum(data, newData->notationOut);
-    switch(newData->notationIn){
+    char* s=newData->num;
+    newData->num=data->val;
+    data->val=s;
+   // newData->num=getNum(data, newData->notationOut);
+    newData->notationIn+=newData->notationOut;
+    newData->notationOut=newData->notationIn-newData->notationOut;
+    newData->notationIn-=newData->notationOut;
+    /*switch(newData->notationIn){
     case 2:
         data->val=getBin(data);
         break;
@@ -59,9 +60,6 @@ int changing(Data* data, NewData* newData){
     default:
         data->val=getOther(data);
         break;
-    }
-    newData->notationIn+=newData->notationOut;
-    newData->notationOut=newData->notationIn-newData->notationOut;
-    newData->notationIn-=newData->notationOut;
+    }*/
     return 0;
 }

@@ -12,13 +12,21 @@
 #define LineFeedSymbol '\n'
 #define CarriageReturnSymbol '\r'
 */
-
-static void* reallocList(void* str, int count, int sizeOfType) {
-    return realloc(str, sizeOfType * count);
+void* freeStr(char* str) {
+    qDebug("freeStr %s", str);
+    free(str);
+    qDebug("freeStr");
+}
+void* reallocList(void* str, int count, int sizeOfType) {
+    qDebug("realloc %s", (char*)str);
+    void* s= realloc(str, sizeOfType * count);
+    qDebug("realloc");
+    return s;
 }
 
 
-static void* mallocList(int count, int sizeOfType) {
+void* mallocList(int count, int sizeOfType) {
+    qDebug("malloc %i", count);
     return malloc(sizeOfType * count);
 }
 
@@ -29,7 +37,9 @@ static void swap(void** a, void** b) {
 }
 
 char* createNewString(int count, char c) {
+    qDebug("malloc %i %c", count, c);
     char* str = (char*)mallocList(++count, sizeof(char));
+    qDebug("malloc");
     str[--count] = '\0';
     for (; count; str[--count] = c);
     return str;
@@ -219,7 +229,7 @@ char* replace(char* str, char* lastValue, char* newValue, int count) {
 }
 
 char* join(char** list, int count, char* joiner) {
-    int n = 0, sizeStr = lenStr(joiner) * (count - 1) + 1;
+    int n = 0, sizeStr = lenStr(joiner) * (count - 1);
     for (int i = 0; i < count; sizeStr += lenStr(list[i++]));
     char* str = createNewString(sizeStr, '\0');
     for (int i = 0; i < count; i++) {
@@ -326,18 +336,28 @@ char** getListStrFromFile(FILE* file, int* k) {
     return list;
 }
 long int strToLongInt(char* str) {
-    long int j=0;
+    long int j=0, z=1;
+    if(*str=='-'){
+        ++str;
+        z=-1;
+    }
     while (*str) {
         j = j * 10 + (long int)*str++ - (long int)'0';
     }
-    return j;
+    return j*z;
 }
 char* longIntToStr(long int i) {
-    char* str = createNewString(log10(abs(i)+2) + 1, '0');
-    str+=(int)(log10(abs(i)+2) +1);
+    if(!i){return createNewString(1, '0');}
+    int c=0;
+    if(i<0){
+        c=1;
+        i*=-1;
+    }
+    char* str = createNewString(log10(i)+1+c, '-');
+    str+=(int)(log10(i)+1+c);
     while (i) {
         *(--str) = i % 10 + '0';
         i /= 10;
     }
-    return str;
+    return str-c;
 }
