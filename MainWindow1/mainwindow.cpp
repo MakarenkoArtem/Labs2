@@ -6,7 +6,7 @@
 void freeMatrix(void** matrix, int rows);
 
 char* errorValue[4]={(char*)"", (char*)"Число больше 4 байт", (char*)"Число не соответсвует системе счиления", (char*)"Просто ошибка"};
-char* errorImage[4]={(char*)"", (char*)"", (char*)"", (char*)""};
+char* errorImage[4]={(char*)"", (char*)"", (char*)"/src/Oleg.jpg", (char*)""};
 
 MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -90,6 +90,9 @@ void MyMainWindow::changeFunc(){
 }
 
 void MyMainWindow::validationCheck(){
+    //QString s=this->styleSheet();
+    //this->setStyleSheet(s+"QRadioButton::indicator:checked {image: url(/home/artem/Artem/C++/Labs2/MainWindow1/src/sigma.jpg);width:100%;height:100%;}");
+
     qDebug("free 25 %s", this->newData.num);
     freeStr(this->newData.num);
     this->newData.num=upperStr(copyStr((char*)ui->lineEdit->text().toStdString().c_str()));
@@ -108,11 +111,11 @@ void MyMainWindow::validationCheck(){
         this->newData.notationOut=ui->spinBox_3->value();
     }
     this->data.error=doOperation(Validation, &this->data, &this->newData);
-    ui->label_2->setText(QString::fromStdString(string(errorValue[this->data.error])));
+    //ui->label_2->setText(QString::fromStdString(string(errorValue[this->data.error])));
+    this->errorFunc();
 }
 
-void MyMainWindow::countingFunc(){
-    this->data.error=doOperation(Counting, &this->data, &this->newData);
+void MyMainWindow::errorFunc(){
     ui->label->setText(QString::fromStdString(string(this->data.val)));
     ui->label_2->setText(QString::fromStdString(string(errorValue[this->data.error])));
     ui->label_3->clear();
@@ -136,6 +139,11 @@ void MyMainWindow::countingFunc(){
     freeMatrix((void**)filePath, n);
     qDebug("free 3");
     free(file);
+
+}
+
+void MyMainWindow::countingFunc(){
+    this->data.error=doOperation(Counting, &this->data, &this->newData);
 }
 
 MyMainWindow::~MyMainWindow()

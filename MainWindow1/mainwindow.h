@@ -30,6 +30,7 @@ private:
     void countingFunc();
     void changeFunc();
     void copyFunc();
+    void errorFunc();
     Ui::MainWindow *ui;
 
 };
