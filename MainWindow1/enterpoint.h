@@ -8,8 +8,7 @@
 enum Operation {
     Validation,
     Counting,
-    Change,
-    Copy
+    Change
 };
 
 

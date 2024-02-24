@@ -50,12 +50,17 @@ MyMainWindow::MyMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::Ma
 }
 
 void MyMainWindow::copyFunc(){
-    this->data.error=doOperation(Copy, &this->data, &this->newData);
+    QClipboard *clipboard=QGuiApplication::clipboard();
+    clipboard->setText(this->data.val);
+    //this->data.error=doOperation(Copy, &this->data, &this->newData);
 }
 
 void MyMainWindow::changeFunc(){
     this->data.error=doOperation(Change, &this->data, &this->newData);
-    switch(this->newData.notationIn){
+    int notationIn=this->newData.notationIn,notationOut=this->newData.notationOut;
+    ui->lineEdit->setText(QString::fromStdString(string(this->newData.num)));
+    qDebug("line %s", this->newData.num);
+    switch(notationIn){
     case 2:
         ui->radioButton->setChecked(true);
         break;
@@ -64,10 +69,11 @@ void MyMainWindow::changeFunc(){
         break;
     default:
         ui->radioButton_3->setChecked(true);
-        ui->spinBox->setValue(this->newData.notationIn);
+        ui->spinBox->setValue(notationIn);
+        qDebug("notationIn %i", notationIn);
         break;
     }
-    switch(this->newData.notationOut){
+    switch(notationOut){
     case 2:
         ui->radioButton_4->setChecked(true);
         break;
@@ -76,12 +82,10 @@ void MyMainWindow::changeFunc(){
         break;
     default:
         ui->radioButton_6->setChecked(true);
-        ui->spinBox_3->setValue(this->newData.notationOut);
+        ui->spinBox_3->setValue(notationOut);
+        qDebug("notationOut %i", notationOut);
         break;
     }
-    ui->lineEdit->setText(QString::fromStdString(string(this->newData.num)));
-    ui->label->setText(QString::fromStdString(string(this->data.val)));
-    this->validationCheck();
     this->countingFunc();
 }
 
@@ -136,8 +140,8 @@ void MyMainWindow::countingFunc(){
 
 MyMainWindow::~MyMainWindow()
 {
-
-    if(this->data.binaryNum!= this->data.val && this->data.otherNum!= this->data.val){free(this->data.val);}
+    //if(this->data.binaryNum!= this->data.val && this->data.otherNum!= this->data.val){
+    free(this->data.val);//}
     free(this->data.binaryNum);
     free(this->data.otherNum);
     free(this->newData.num);

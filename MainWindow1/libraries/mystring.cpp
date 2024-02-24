@@ -189,14 +189,16 @@ char* intToStr(int i) {
 char** split(char* str, char* s, int* n) {
     int i = 0, c = 0, lenSplitStr = lenStr(s);
     *n = 0;
-    char** list = (char**)mallocList(lenStr(str) / 2 + 1, sizeof(void*));
+    char *help_, **list = (char**)mallocList(lenStr(str) / 2 + 1, sizeof(void*));
     do {
-        if (compareStr(subStr(str, i, i + lenSplitStr), s) || !str[i]) {
-            list[*n] = (char*)mallocList(c + 1, sizeof(char));
+        help_=subStr(str, i, i + lenSplitStr);
+        if (compareStr(help_, s) || !str[i]) {
+            //list[*n] = (char*)mallocList(c + 1, sizeof(char));
             list[(*n)++] = subStr(str, i - c, i);
             c = 0;
         }
         else { c++; }
+        freeStr(help_);
     } while (str[i++]);
     return list;
 }
@@ -208,8 +210,10 @@ char* charInSyms(char s, char* syms) {
 
 char* replace(char* str, char* lastValue, char* newValue, int count) {
     int k, h, i = 0, lenLastValue = lenStr(lastValue), lenNewValue = lenStr(newValue);
+    char* help_;
     do {
-        if (compareStr(subStr(str, i, i + lenLastValue), lastValue)) {
+        help_=subStr(str, i, i + lenLastValue);
+        if (compareStr(help_, lastValue)) {
             --count;
             k = lenLastValue - lenNewValue;
             if (k >= 0) {
@@ -224,6 +228,7 @@ char* replace(char* str, char* lastValue, char* newValue, int count) {
             }
             i-= lenLastValue - lenNewValue;
         }
+        freeStr(help_);
     } while (str[++i] && count);
     return str;
 }

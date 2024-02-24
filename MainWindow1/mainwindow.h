@@ -7,6 +7,7 @@
 #include<QButtonGroup>
 #include<data.h>
 #include <QDir>
+#include<QClipboard>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

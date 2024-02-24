@@ -24,8 +24,7 @@ QLabel{
 
 }
 QRadioButton{
-color: rgb(255, 255, 255);
-}</string>
+color: rgb(255, 255, 255);}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_12">

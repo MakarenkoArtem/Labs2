@@ -5,11 +5,11 @@
 
 
 char* hexNum=(char*)"0123456789ABCDEF";
-int copy(Data* data, NewData* newData){
+/*int copy(Data* data, NewData* newData){
     QClipboard *clipboard=QGuiApplication::clipboard();
     clipboard->setText(data->val);
     return OK;
-}
+}*/
 
 int validation(Data* data, NewData* newData){
     int result = OK, i=(*newData->num=='-')&&(newData->notationIn==10);
@@ -31,13 +31,13 @@ int counting(Data* data, NewData* newData){
     freeStr(data->val);
     switch(newData->notationOut){
     case 2:
-        data->val=getBin(data);
+        data->val=copyStr(getBin(data));
         break;
     case 10:
-        data->val=getDec(data);
+        data->val=copyStr(getDec(data));
         break;
     default:
-        data->val=getOther(data);
+        data->val=copyStr(getOther(data));
         break;
     }
     return OK;

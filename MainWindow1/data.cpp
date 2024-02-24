@@ -1,6 +1,7 @@
 #include "data.h"
 #include <libraries/mystring.h>
 #include"QtDebug"
+
 char* unsignedFromDec(long int num, int notation){
     char* newNum=createNewString(0, ' '), *base=(char*)"0123456789ABCDEF";
     while (num){

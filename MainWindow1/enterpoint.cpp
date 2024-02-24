@@ -11,8 +11,5 @@ int doOperation(Operation operation, Data* data, NewData* newData){
         if (t){return t;}
         return OK;}
         //return counting(data, newData);}
-    case Copy:
-        return copy(data, newData);
-    }
-
+}
 }
