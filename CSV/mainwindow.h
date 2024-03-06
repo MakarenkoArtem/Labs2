@@ -17,10 +17,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    char* file;
-    MyData vals;
-    DBookList DArray;
-    Queue queue;
+    AppParams params;
+    AppContext context;
 
 
 private:

@@ -7,6 +7,7 @@
 #include"arrays.h"
 
 enum Operation {
+    Initialization,
     LoadData,
     DisplayData,
     Change
@@ -17,6 +18,7 @@ enum Errors{
     FileNotFound=-50
 };
 
-int doOperation(int operation, char* file, DBookList* DArray, Queue* queue, char* region, int column, MyData* vals);
+
+int doOperation(int operation, AppContext* context, AppParams* params);//, char* file, AllData* DArray, Queue* queue, char* region, int column, StatisticData* vals);
 
 #endif // ENTRYPOINT_H

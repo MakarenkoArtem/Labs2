@@ -5,82 +5,101 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
 
-    file=createNewString(0, ' ');
-    queue=initQueue();
-    DArray.size=0;
-    DArray.books=(Book*)malloc(0);
-
     connect(ui->toolButton, &QToolButton::clicked, this, &MainWindow::changeFile);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::openFile);
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::displayData);
+
+    int ans = doOperation(Initialization, &context, &params);
+    if (ans!=OK){
+        qDebug("Error");
+        this->~MainWindow();
+    }
 }
 
 MainWindow::~MainWindow()
 {
-    freeStr(file);
+    freeStr(context.file);
     delete ui;
 }
 
 void MainWindow::openFile(){
-    freeStr(file);
-    file=copyStr((char*)ui->lineEdit->text().toStdString().c_str());
-    int errors=doOperation(LoadData, file, &DArray, &queue, (char*)"", -1, &vals);
+    freeStr(context.file);
+    context.file=copyStr((char*)ui->lineEdit->text().toStdString().c_str());
+    int errors=doOperation(LoadData, &context, &params);// file, &DArray, &queue, (char*)"", -1, &vals);
     char* mes;
     switch(errors){
     case FileNotFound:{
-        char* s[]={(char*)"Файл\n",file, (char*)"\nне найден"};
+        char* s[]={(char*)"Файл\n",context.file, (char*)"\nне найден"};
         mes=join((char**)s, 3, (char*)" ");
         break;
     }default:{
-        char* a =intToStr(errors), *b=intToStr(errors+DArray.size);
+        char* a =intToStr(errors), *b=intToStr(errors+params.DArray.size);
         char* s[]={(char*)"Загрузка завершена получено ошибок/всего строк: ", a, (char*)"/", b};
         mes=join((char**)s, 4,(char*)" ");
         freeStr(a);
         freeStr(b);
-    }
-    }
-
+    }}
     ui->label_4->setText(mes);
     freeStr(mes);
 }
-QTableWidgetItem* printRow(char* str){
+QTableWidgetItem* printCell(char* str){
     return new QTableWidgetItem(str);
 }
 
-QTableWidgetItem* printRow(float num){
+QTableWidgetItem* printCell(float num){
     QTableWidgetItem* item=new QTableWidgetItem();
     item->setData(Qt::DisplayRole, num);
     return item;}
 
+int printRow(Row* row, int indRow, QTableWidget* table){
+    table->setItem(indRow, 0, printCell(row->year));
+    table->setItem(indRow, 1, printCell(row->region));
+    table->setItem(indRow, 2, printCell(row->npg));
+    table->setItem(indRow, 3, printCell(row->birth_rate));
+    table->setItem(indRow, 4, printCell(row->death_rate));
+    table->setItem(indRow, 5, printCell(row->gdw));
+    table->setItem(indRow, 6, printCell(row->urbanization));
+    return OK;}
+
+int printRowInSecondTable(StatisticData* vals, QTableWidget* table){
+    table->setItem(0, 0, printCell(vals->minVal));
+    table->setItem(1, 0, printCell(vals->maxVal));
+    table->setItem(2, 0, printCell(vals->averageVal));
+    return OK;}
+
 void MainWindow::displayData(){
-    int column = ui->spinBox->value();
+    context.column = ui->spinBox->value();
     char* reg=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
     if(compareStr(reg, (char*)"")){
-            column=-1;
-}
-    doOperation(DisplayData, file, &DArray, &queue, reg, column, &vals);
+            context.column=-1;
+    }
+    doOperation(DisplayData, &context, &params);
     freeStr(reg);
-    Book b;
+    Row row;
     ui->tableWidget->clear();
+    //ui->tableWidget->setUpdatesEnabled(true);
+    //ui->tableWidget_2->setUpdatesEnabled(true);
     QStringList headerLabels;
-    headerLabels << "year" << "region" << "ngp" << "birth_rate" << "death_rate" << "gdw" << "urbanization";
+    headerLabels << "year" << "region" << "npg" << "birth_rate" << "death_rate" << "gdw" << "urbanization";
     ui->tableWidget->setHorizontalHeaderLabels(headerLabels);
-    ui->tableWidget->setRowCount(0);
-    for(int i=0;!isEmpty(&queue);++i){
-        ui->tableWidget->setRowCount(i+1);
-        pop(&b, &queue);
+    ui->tableWidget->setRowCount(params.queue.size);
+    for(int i=0;!isEmpty(&params.queue);++i){
+        pop(&row, &params.queue);
+        printRow(&row, i, ui->tableWidget);
+                /*
         ui->tableWidget->setItem(i, 0, printRow(b.year));
         ui->tableWidget->setItem(i, 1, printRow(b.region));
         ui->tableWidget->setItem(i, 2, printRow(b.npg));
         ui->tableWidget->setItem(i, 3, printRow(b.birth_rate));
         ui->tableWidget->setItem(i, 4, printRow(b.death_rate));
         ui->tableWidget->setItem(i, 5, printRow(b.gdw));
-        ui->tableWidget->setItem(i, 6, printRow(b.urbanization));
+        ui->tableWidget->setItem(i, 6, printRow(b.urbanization));*/
     }
-    ui->tableWidget_2->setItem(0, 0, printRow(vals.minVal));
-    ui->tableWidget_2->setItem(1, 0, printRow(vals.maxVal));
-    ui->tableWidget_2->setItem(2, 0, printRow(vals.averageVal));
-    ui->tableWidget->show();
+    printRowInSecondTable(&params.vals, ui->tableWidget_2);
+    //ui->tableWidget->show();
+    //ui->tableWidget_2->show();
+    //ui->tableWidget->setUpdatesEnabled(false);
+    //ui->tableWidget_2->setUpdatesEnabled(false);
 }
 
 void MainWindow::changeFile(){

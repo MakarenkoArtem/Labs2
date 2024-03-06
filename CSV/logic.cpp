@@ -8,9 +8,17 @@ void freeMatrix(void** matrix, int rows) {
     free(matrix);
 }
 
-int openFile(char* file, DBookList* DArray, Queue* queue){
-    dynamicClearList(DArray);
-    FILE* f = fopen(file, "r");
+int initialization(AppContext* context, AppParams* params){
+    context->file=createNewString(0, ' ');
+    params->queue=initQueue();
+    params->DArray.size=0;
+    params->DArray.rows=(Row*)malloc(0);
+    return OK;
+}
+
+int openFile(AppContext* context, AppParams* params){
+    dynamicClearList(&params->DArray);
+    FILE* f = fopen(context->file, "r");
     if(!f){
         return FileNotFound;
     }
@@ -21,7 +29,7 @@ int openFile(char* file, DBookList* DArray, Queue* queue){
     freeStr(line);
     line = getStrFromFile(f);
     int count, i=0, errors=0,allCheks;
-    Book b;//!feof(f) &&
+    Row row;//!feof(f) &&
     char* base;
     while (*line != (char)Error){
         qDebug("%i",++i);
@@ -52,15 +60,14 @@ int openFile(char* file, DBookList* DArray, Queue* queue){
         if(!allCheks){
             ++errors;
             continue;}
-        //b=(Book*)mallocList(1, sizeof(Book));
-        b.year=strToInt(values[0]);
-        b.region=copyStr(values[1]);
-        b.npg=strToFloat(values[2]);
-        b.birth_rate=strToFloat(values[3]);
-        b.death_rate=strToFloat(values[4]);
-        b.gdw=strToFloat(values[5]);
-        b.urbanization=strToFloat(values[6]);
-        dynamicAddBook(DArray, b, DArray->size);
+        row.year=strToInt(values[0]);
+        row.region=copyStr(values[1]);
+        row.npg=strToFloat(values[2]);
+        row.birth_rate=strToFloat(values[3]);
+        row.death_rate=strToFloat(values[4]);
+        row.gdw=strToFloat(values[5]);
+        row.urbanization=strToFloat(values[6]);
+        dynamicAddRow(&params->DArray, row, params->DArray.size);
         freeMatrix((void**)values, count);
     };
     fclose(f);
@@ -68,49 +75,49 @@ int openFile(char* file, DBookList* DArray, Queue* queue){
 }
 
 
-int displayData(DBookList* DArray, Queue* queue, char* region, int column, MyData* vals){
+int displayData(AppContext* context, AppParams* params){
     int first=1;
     float curVal=0;
-    vals->averageVal=0.0;
-    vals->maxVal=0.0;
-    vals->minVal=0.0;
+    params->vals.averageVal=0.0;
+    params->vals.maxVal=0.0;
+    params->vals.minVal=0.0;
     List* l=init(curVal);
-    for(int i=0;i<DArray->size;++i){
-        if(compareStr(region, (char*)"") || compareStr(region, DArray->books[i].region)){
-            push(queue, DArray->books[i]);
-            switch(column){
+    for(int i=0;i<params->DArray.size;++i){
+        if(compareStr(context->region, (char*)"") || compareStr(context->region, params->DArray.rows[i].region)){
+            push(&params->queue, params->DArray.rows[i]);
+            switch(context->column){
                 case 1:{
-                    curVal=(float)DArray->books[i].year;
+                    curVal=(float)params->DArray.rows[i].year;
                     break;
                 }
                 case 2:
                     break;
                 case 3:{
-                    curVal=DArray->books[i].npg;
+                    curVal=params->DArray.rows[i].npg;
                     break;
                 }
                 case 4:{
-                    curVal=DArray->books[i].birth_rate;
+                    curVal=params->DArray.rows[i].birth_rate;
                     break;
                 }
                 case 5:{
-                    curVal=DArray->books[i].death_rate;
+                    curVal=params->DArray.rows[i].death_rate;
                     break;
                 }
                 case 6:{
-                    curVal=DArray->books[i].gdw;
+                    curVal=params->DArray.rows[i].gdw;
                     break;
                 }
                 case 7:{
-                    curVal=DArray->books[i].urbanization;
+                    curVal=params->DArray.rows[i].urbanization;
                     break;
                 }
             }
-            if(first || vals->maxVal< curVal){
-                vals->maxVal= curVal;
+            if(first || params->vals.maxVal< curVal){
+                params->vals.maxVal= curVal;
             }
-            if(first || vals->minVal> curVal){
-                vals->minVal= curVal;
+            if(first || params->vals.minVal> curVal){
+                params->vals.minVal= curVal;
             }
             if(first){
                 first=0;
@@ -120,7 +127,7 @@ int displayData(DBookList* DArray, Queue* queue, char* region, int column, MyDat
             }
     }
     }
-    vals->averageVal=getOnIndex(l, l->size/2)->data;
+    params->vals.averageVal=getOnIndex(l, l->size/2)->data;
     deleteList(l);
     return OK;
 }

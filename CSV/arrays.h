@@ -3,54 +3,39 @@
 
 #include <stdlib.h>
 const int SIZE = 50;
-struct Book {
+struct Row {
     int year;
     char* region;
     float npg, birth_rate, death_rate, gdw, urbanization;
 };
 
-struct LinkedNode {
-    Book data;
-    LinkedNode* next;
-    LinkedNode* prev;
-};
 
 struct Node {
-    Book data;  // поле данных
+    Row data;  // поле данных
     Node* next; // поле связей
 };
 
-
-/*======StaticList=======*/
-// Список на базе статического массива
-struct SBookList {
-    Book books[SIZE];
-    int size;
-};
-
-void staticAddBook(SBookList* books, Book book, int index);
-void staticRemoveBook(SBookList* books, int index);
-
 /*======DynamicList=======*/
-struct DBookList {
-    Book* books;
+struct AllData {
+    Row* rows;
     int size;
 };
-void dynamicClearList(DBookList* books);
-void dynamicAddBook(DBookList* books, Book book, int index);
-void dynamicRemoveBook(DBookList* books, int index);
+void dynamicClearList(AllData* allData);
+void dynamicAddRow(AllData* allData, Row row, int index);
+void dynamicRemoveRow(AllData* allData, int index);
 
 /*======Queue=======*/
 struct Queue {
     Node *head, *tail;
+    int size;
 };
 
 Queue initQueue();
 bool isEmpty(Queue* queue);
-bool pop(Book* book, Queue* queue);
-void push(Queue *queue, Book book);
+bool pop(Row* row, Queue* queue);
+void push(Queue *queue, Row row);
 
-struct MyData{
+struct StatisticData{
     float minVal, maxVal, averageVal;
 };
 
@@ -80,5 +65,15 @@ void handleBooks(List* list, void(*handler)(Book*));
 
 
 
+struct AppContext{
+    char* file;
+    char* region;
+    int column;
+};
 
-#endif // ARRAYS_H
+struct AppParams{
+    AllData DArray;
+    Queue queue;
+    StatisticData vals;
+};
+#endif

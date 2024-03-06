@@ -6,6 +6,8 @@
 #include<enterpoint.h>
 #include<libraries/mystring.h>
 
-int openFile(char* file, DBookList* DArray, Queue* queue);
-int displayData(DBookList* DArray, Queue* queue, char* region, int column, MyData *vals);
+int openFile(AppContext* context, AppParams* params);
+int displayData(AppContext* context, AppParams* params);
+int initialization(AppContext* context, AppParams* params);
+
 #endif // LOGIC_H

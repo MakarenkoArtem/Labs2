@@ -1,11 +1,13 @@
 #include"enterpoint.h"
 
-int doOperation(int operation, char* file, DBookList* DArray, Queue* queue, char* region, int column, MyData* vals){
+int doOperation(int operation, AppContext* context, AppParams* params){//char* file, AllData* DArray, Queue* queue, char* region, int column, StatisticData* vals){
     switch(operation){
+    case Initialization:
+        return initialization(context, params);
     case LoadData:
-        return openFile(file, DArray, queue);
+        return openFile(context, params);
     case DisplayData:
-        return displayData(DArray, queue, region, column, vals);
+        return displayData(context, params);
     /*case Change:{
         int t= changing(data, newData);
         if (t){return t;}

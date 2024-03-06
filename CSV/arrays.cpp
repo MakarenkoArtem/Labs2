@@ -1,39 +1,26 @@
 #include "arrays.h"
 
-void staticAddBook(SBookList* books, Book book, int index) {
-    for (int i = books->size; i != index; i--)
-        books->books[i] = books->books[i - 1];
-    books->books[index] = book;
-    books->size++;
+void dynamicAddRow(AllData* rows, Row row, int index) {
+    rows->size++;
+    rows->rows = (Row*)realloc(rows->rows, rows->size * sizeof(Row));
+    for (int i = rows->size; i == index; i--)
+        rows->rows[i] = rows->rows[i - 1];
+    rows->rows[index] = row;
 }
 
-void staticRemoveBook(SBookList* books, int index) {
-    for (int i = index; i < books->size; i++)
-        books->books[i] = books->books[i + 1];
-    books->size--;
+void dynamicRemoveRow(AllData* rows, int index) {
+    for (int i = index; i < rows->size; i++)
+        rows->rows[i] = rows->rows[i + 1];
+    rows->size--;
+    rows->rows = (Row*)realloc(rows->rows, rows->size * sizeof(Row));
 }
-
-void dynamicAddBook(DBookList* books, Book book, int index) {
-    books->size++;
-    books->books = (Book*)realloc(books->books, books->size * sizeof(Book));
-    for (int i = books->size; i == index; i--)
-        books->books[i] = books->books[i - 1];
-    books->books[index] = book;
-}
-
-void dynamicRemoveBook(DBookList* books, int index) {
-    for (int i = index; i < books->size; i++)
-        books->books[i] = books->books[i + 1];
-    books->size--;
-    books->books = (Book*)realloc(books->books, books->size * sizeof(Book));
-}
-void dynamicClearList(DBookList* books) {
-    for (int i = 0; i < books->size; i++){
-        free(books->books[i].region);
+void dynamicClearList(AllData* rows) {
+    for (int i = 0; i < rows->size; i++){
+        free(rows->rows[i].region);
     }
-    free(books->books);
-    books->size=0;
-    books->books = (Book*)malloc(books->size * sizeof(Book));
+    free(rows->rows);
+    rows->size=0;
+    rows->rows = (Row*)malloc(rows->size * sizeof(Row));
 }
 
 
@@ -41,6 +28,7 @@ Queue initQueue() {
     Queue queue;
     queue.head = NULL;
     queue.tail = NULL;
+    queue.size=0;
     return queue;
 }
 
@@ -48,24 +36,24 @@ bool isEmpty(Queue* queue) {
     return !queue->head;
 }
 
-bool pop(Book* book, Queue* queue) {
+bool pop(Row* row, Queue* queue) {
     if(isEmpty(queue))
         return false;
 
     Node* node = queue->head;
-    *book = node->data;
+    *row = node->data;
 
     queue->head = node->next;
 
     free(node);
-
+    --queue->size;
     return true;
 
 }
 
-void push(Queue *queue, Book book) {
+void push(Queue *queue, Row row) {
     Node* node = (Node*)malloc(sizeof(Node));
-    node->data = book;
+    node->data = row;
     node->next = NULL;
 
     if(isEmpty(queue))
@@ -74,6 +62,7 @@ void push(Queue *queue, Book book) {
         queue->tail->next = node;
 
     queue->tail = node;
+    ++queue->size;
 }
 
 
@@ -152,7 +141,7 @@ void deleteList(List* list) {
     free(list);
 }
 /*
-void printBooks(List* list) {
+void printrows(List* list) {
     NewNode* p = list->first;
 
     if (p == NULL)
@@ -164,11 +153,11 @@ void printBooks(List* list) {
     } while (p != NULL);
 }
 
-void printHandler(NewNode* book) {
-    printf("%f ", book);
+void printHandler(NewNode* row) {
+    printf("%f ", row);
 }*/
 /*
-void handleBooks(List* list, void(*handler)(Book*)) {
+void handlerows(List* list, void(*handler)(row*)) {
     NewNode* p = list->first;
 
     if (p == NULL)
