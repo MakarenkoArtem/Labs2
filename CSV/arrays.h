@@ -8,7 +8,20 @@ struct Row {
     char* region;
     float npg, birth_rate, death_rate, gdw, urbanization;
 };
+struct numInList{
+    int key, val;
+};
 
+struct counteredList{
+    char* region;
+    int count;
+    numInList* vals;
+};
+
+struct dataForGrap{
+    int count;
+    counteredList* vals;
+};
 
 struct Node {
     Row data;  // поле данных
@@ -64,6 +77,12 @@ void handleBooks(List* list, void(*handler)(Book*));
 */
 
 
+struct ListStrings {
+    char** titles;
+    int count;
+};
+
+void clearListString(ListStrings* list);
 
 struct AppContext{
     char* file;
@@ -72,6 +91,7 @@ struct AppContext{
 };
 
 struct AppParams{
+    ListStrings titles;
     AllData DArray;
     Queue queue;
     StatisticData vals;

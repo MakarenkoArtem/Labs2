@@ -13,7 +13,7 @@
 #define CarriageReturnSymbol '\r'
 */
 
-void* freeStr(char* str) {
+void freeStr(char* str) {
     //qDebug("freeStr %s", str);
     free(str);
     //qDebug("freeStr");

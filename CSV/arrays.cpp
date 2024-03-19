@@ -1,4 +1,9 @@
 #include "arrays.h"
+#include "libraries/mystring.h"
+
+void clearListString(ListStrings* list){
+   freeMatrixStr(list->titles, list->count);
+}
 
 void dynamicAddRow(AllData* rows, Row row, int index) {
     rows->size++;

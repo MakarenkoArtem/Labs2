@@ -1,6 +1,6 @@
 QT       += core gui
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 CONFIG += c++11
 
@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     arrays.cpp \
+    drawframe.cpp \
     enterpoint.cpp \
     libraries/mystring.cpp \
     logic.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     arrays.h \
+    drawframe.h \
     enterpoint.h \
     libraries/mystring.h \
     logic.h \
@@ -35,3 +37,6 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    CSV_ru_RU.ts

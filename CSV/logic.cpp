@@ -1,6 +1,7 @@
 #include "logic.h"
 
 #define Error -1
+
 void freeMatrix(void** matrix, int rows) {
     for (int i = 0; i < rows; ++i) {
         free(matrix[i]);
@@ -10,6 +11,7 @@ void freeMatrix(void** matrix, int rows) {
 
 int initialization(AppContext* context, AppParams* params){
     context->file=createNewString(0, ' ');
+    params->titles.titles=split((char*)"", (char*)"/", &params->titles.count);
     params->queue=initQueue();
     params->DArray.size=0;
     params->DArray.rows=(Row*)malloc(0);
@@ -26,6 +28,8 @@ int openFile(AppContext* context, AppParams* params){
     if(line==(char*)Error){
         fclose(f);
         return FileNotFound;}
+    clearListString(&params->titles);
+    params->titles.titles = split(line, (char*)",", &params->titles.count);
     freeStr(line);
     line = getStrFromFile(f);
     int count, i=0, errors=0,allCheks;
@@ -73,7 +77,14 @@ int openFile(AppContext* context, AppParams* params){
     fclose(f);
     return errors;
 }
+/*
+int sortData(AppContext* context, AppParams* params){
+    dataForGrap* data=(dataForGrap*)malloc(sizeof(void*));
+    Node* curVal= params->queue.head;
+    for(;curVal;curVal=curVal->next){
 
+    }
+}*/
 
 int displayData(AppContext* context, AppParams* params){
     int first=1;

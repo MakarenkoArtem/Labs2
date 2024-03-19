@@ -2,12 +2,15 @@
 #include "ui_mainwindow.h"
 #include<QFileDialog>
 
+
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
-
+    ui->gridLayout->replaceWidget(ui->frame, new DrawFrame);
+    delete ui->frame;
     connect(ui->toolButton, &QToolButton::clicked, this, &MainWindow::changeFile);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::openFile);
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::displayData);
+
 
     int ans = doOperation(Initialization, &context, &params);
     if (ans!=OK){
@@ -34,7 +37,7 @@ void MainWindow::openFile(){
         break;
     }default:{
         char* a =intToStr(errors), *b=intToStr(errors+params.DArray.size);
-        char* s[]={(char*)"Загрузка завершена получено ошибок/всего строк: ", a, (char*)"/", b};
+        char* s[]={(char*)"Загрузка завершена\nполучено ошибок/всего строк:\n", a, (char*)"/", b};
         mes=join((char**)s, 4,(char*)" ");
         freeStr(a);
         freeStr(b);
@@ -67,6 +70,11 @@ int printRowInSecondTable(StatisticData* vals, QTableWidget* table){
     table->setItem(2, 0, printCell(vals->averageVal));
     return OK;}
 
+int printTitles(ListStrings* titles, QTableWidget* table){
+    for(int i=0;i<titles->count;++i){
+        table->setHorizontalHeaderItem(i, printCell(titles->titles[i]));}
+    return OK;}
+
 void MainWindow::displayData(){
     context.column = ui->spinBox->value();
     char* reg=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
@@ -79,9 +87,10 @@ void MainWindow::displayData(){
     ui->tableWidget->clear();
     //ui->tableWidget->setUpdatesEnabled(true);
     //ui->tableWidget_2->setUpdatesEnabled(true);
-    QStringList headerLabels;
-    headerLabels << "year" << "region" << "npg" << "birth_rate" << "death_rate" << "gdw" << "urbanization";
-    ui->tableWidget->setHorizontalHeaderLabels(headerLabels);
+    //QStringList headerLabels;
+    //headerLabels << "year" << "region" << "npg" << "birth_rate" << "death_rate" << "gdw" << "urbanization";
+    printTitles(&params.titles, ui->tableWidget);
+    //ui->tableWidget->setHorizontalHeaderLabels(headerLabels);
     ui->tableWidget->setRowCount(params.queue.size);
     for(int i=0;!isEmpty(&params.queue);++i){
         pop(&row, &params.queue);
