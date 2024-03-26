@@ -9,5 +9,5 @@
 int openFile(AppContext* context, AppParams* params);
 int displayData(AppContext* context, AppParams* params);
 int initialization(AppContext* context, AppParams* params);
-
+int sortData(AppContext* context, AppParams* params);
 #endif // LOGIC_H

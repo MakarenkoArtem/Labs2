@@ -21,6 +21,7 @@ public:
     ~MainWindow();
     AppParams params;
     AppContext context;
+    DrawFrame canvas;
 
 private:
     void changeFile();

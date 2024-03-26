@@ -9,10 +9,12 @@ struct Row {
     float npg, birth_rate, death_rate, gdw, urbanization;
 };
 struct numInList{
-    int key, val;
+    int key;
+    float val;
 };
 
 struct counteredList{
+    int compation;
     char* region;
     int count;
     numInList* vals;
@@ -95,5 +97,6 @@ struct AppParams{
     AllData DArray;
     Queue queue;
     StatisticData vals;
+    dataForGrap data;
 };
 #endif

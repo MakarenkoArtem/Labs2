@@ -10,7 +10,8 @@ enum Operation {
     Initialization,
     LoadData,
     DisplayData,
-    Change
+    Change,
+    SortData
 };
 
 enum Errors{

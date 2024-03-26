@@ -76,6 +76,12 @@
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
+        <property name="showGrid">
+         <bool>true</bool>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
         <row>
          <property name="text">
           <string>min</string>
@@ -218,7 +224,7 @@
      <x>0</x>
      <y>0</y>
      <width>1115</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

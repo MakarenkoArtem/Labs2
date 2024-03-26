@@ -11,10 +11,13 @@ void freeMatrix(void** matrix, int rows) {
 
 int initialization(AppContext* context, AppParams* params){
     context->file=createNewString(0, ' ');
+    context->region=createNewString(0, ' ');
     params->titles.titles=split((char*)"", (char*)"/", &params->titles.count);
     params->queue=initQueue();
     params->DArray.size=0;
     params->DArray.rows=(Row*)malloc(0);
+    params->data.vals=(counteredList*)malloc(sizeof(void*));
+    params->data.count=0;
     return OK;
 }
 
@@ -77,14 +80,69 @@ int openFile(AppContext* context, AppParams* params){
     fclose(f);
     return errors;
 }
-/*
+
 int sortData(AppContext* context, AppParams* params){
-    dataForGrap* data=(dataForGrap*)malloc(sizeof(void*));
+    dataForGrap* data=&params->data;
     Node* curVal= params->queue.head;
-    for(;curVal;curVal=curVal->next){
+    int ind;
+    counteredList* list;
+    for(;curVal!=NULL;curVal=curVal->next){
+        ind=0;
+        for (;ind<data->count;++ind){
+            if (compareStr(curVal->data.region, data->vals[ind].region)){
+                break;
+            }}
+        list=data->vals+ind;
+        if (ind==data->count){
+            data->vals=(counteredList*)realloc(data->vals, sizeof(counteredList)*(++data->count));
+            list=data->vals+ind;
+            list->count=0;
+            list->region=copyStr(curVal->data.region);
+            list->compation=16;
+            list->vals=(numInList*)malloc(sizeof(numInList)*list->compation);
+        }
+        if(list->count==list->compation){
+            list->compation*=2;
+            list->vals=(numInList*)realloc(list->vals, sizeof(numInList)*list->compation);
+        }
+        list=data->vals+ind;
+        switch(context->column){
+        case 1:{
+            list->vals[list->count].val=(float)curVal->data.year;
+            break;
+        }
+        case 2:
+            break;
+        case 3:{
+            list->vals[list->count].val=curVal->data.npg;
+            break;
+        }
+        case 4:{
+            list->vals[list->count].val=curVal->data.birth_rate;
+            break;
+        }
+        case 5:{
+            list->vals[list->count].val=curVal->data.death_rate;
+            break;
+        }
+        case 6:{
+            list->vals[list->count].val=curVal->data.gdw;
+            break;
+        }
+        case 7:{
+            list->vals[list->count].val=curVal->data.urbanization;
+            break;
+        }
+        define:{
+            list->vals[list->count].val=0;
+            break;
+        }
+        }
+        list->vals[list->count++].key=curVal->data.year;
 
     }
-}*/
+    return OK;
+}
 
 int displayData(AppContext* context, AppParams* params){
     int first=1;

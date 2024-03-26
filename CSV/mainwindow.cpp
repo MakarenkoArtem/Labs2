@@ -5,7 +5,8 @@
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
-    ui->gridLayout->replaceWidget(ui->frame, new DrawFrame);
+    canvas;
+    ui->gridLayout->replaceWidget(ui->frame, &canvas);
     delete ui->frame;
     connect(ui->toolButton, &QToolButton::clicked, this, &MainWindow::changeFile);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::openFile);
@@ -13,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
 
     int ans = doOperation(Initialization, &context, &params);
+    canvas.data=&params.data;
     if (ans!=OK){
         qDebug("Error");
         this->~MainWindow();
@@ -77,12 +79,22 @@ int printTitles(ListStrings* titles, QTableWidget* table){
 
 void MainWindow::displayData(){
     context.column = ui->spinBox->value();
-    char* reg=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
-    if(compareStr(reg, (char*)"")){
+    freeStr(context.region);
+    context.region=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
+    /*if(compareStr(context.region, (char*)"")){
             context.column=-1;
-    }
+    }*/
+    //context.region=copyStr(reg);
+    int help= context.column;
+    context.column=1;
     doOperation(DisplayData, &context, &params);
-    freeStr(reg);
+    canvas.maxRow=params.vals.maxVal;
+    canvas.minRow=params.vals.minVal;
+    context.column=help;
+    doOperation(DisplayData, &context, &params);
+    canvas.maxCol=params.vals.maxVal;
+    canvas.minCol=params.vals.minVal;
+    doOperation(SortData, &context, &params);
     Row row;
     ui->tableWidget->clear();
     //ui->tableWidget->setUpdatesEnabled(true);
@@ -95,16 +107,9 @@ void MainWindow::displayData(){
     for(int i=0;!isEmpty(&params.queue);++i){
         pop(&row, &params.queue);
         printRow(&row, i, ui->tableWidget);
-                /*
-        ui->tableWidget->setItem(i, 0, printRow(b.year));
-        ui->tableWidget->setItem(i, 1, printRow(b.region));
-        ui->tableWidget->setItem(i, 2, printRow(b.npg));
-        ui->tableWidget->setItem(i, 3, printRow(b.birth_rate));
-        ui->tableWidget->setItem(i, 4, printRow(b.death_rate));
-        ui->tableWidget->setItem(i, 5, printRow(b.gdw));
-        ui->tableWidget->setItem(i, 6, printRow(b.urbanization));*/
     }
     printRowInSecondTable(&params.vals, ui->tableWidget_2);
+    canvas.updateFrame();
     //ui->tableWidget->show();
     //ui->tableWidget_2->show();
     //ui->tableWidget->setUpdatesEnabled(false);
