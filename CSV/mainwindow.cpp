@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 
 
     int ans = doOperation(Initialization, &context, &params);
-    canvas.data=&params.data;
+    canvas.updateFrame(params.data);
     if (ans!=OK){
         qDebug("Error");
         this->~MainWindow();
@@ -109,7 +109,7 @@ void MainWindow::displayData(){
         printRow(&row, i, ui->tableWidget);
     }
     printRowInSecondTable(&params.vals, ui->tableWidget_2);
-    canvas.updateFrame();
+    canvas.updateFrame(params.data);
     //ui->tableWidget->show();
     //ui->tableWidget_2->show();
     //ui->tableWidget->setUpdatesEnabled(false);

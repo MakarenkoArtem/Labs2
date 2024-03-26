@@ -15,7 +15,7 @@ public:
     dataForGrap* data;
     char* titleCol, *titleRow;
     explicit DrawFrame(QWidget *parent = nullptr);
-    void updateFrame();
+    void updateFrame(dataForGrap* newData);
 private:
     void paintEvent(QPaintEvent *event) override;
 

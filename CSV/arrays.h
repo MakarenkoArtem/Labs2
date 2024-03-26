@@ -97,6 +97,6 @@ struct AppParams{
     AllData DArray;
     Queue queue;
     StatisticData vals;
-    dataForGrap data;
+    dataForGrap* data;
 };
 #endif

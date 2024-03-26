@@ -3,10 +3,30 @@
 DrawFrame::DrawFrame(QWidget *parent)
     : QWidget{parent}
 {
-
+    data=(dataForGrap*)malloc(sizeof(dataForGrap));
+    data->count=0;
 }
 
-void DrawFrame::updateFrame(){
+void clear(dataForGrap* data){
+    /*for(int i =0;i<data->count;++i){
+
+        counteredList* list = data->vals+i;
+        //for(int j=0;j<data->vals[i].compation;++j){
+          //  qDebug("%i %i", sizeof(data->vals[i].vals+j), sizeof(data->vals[i].vals[j]));
+            free(list->vals);
+        //}
+        free(data->vals[i].region);
+        free(data->vals+i);
+    }*/
+    free(data);
+}
+
+void DrawFrame::updateFrame(dataForGrap* newData){
+    if(newData==data){
+    }else{
+        clear(data);
+        data=newData;
+    }
     update();
 }
 
@@ -34,14 +54,13 @@ void DrawFrame::paintEvent(QPaintEvent *event)
     }
     int a, b, d, e;
     for(int i =0;i<data->count;++i){
-        paint.setPen(QColor(i*1%256,i*3%256,i*2%256));
+        paint.setPen(QColor(i*25%256,i*81%256,i*36%256));
         for(int j=0;j<data->vals[i].count;++j){
-            qDebug("%d %d", (data->vals[i].vals[j].key-minRow), (data->vals[i].vals[j].key-minRow)/(maxRow-minRow));
             a=width()*0.1 + width()*0.8*(data->vals[i].vals[j].key-minRow)/(maxRow-minRow);
             b=height()*0.9 - height()*0.8*(data->vals[i].vals[j].val-minCol)/(maxCol-minCol);
-            qDebug("%i %i", a, b);
             paint.drawEllipse(a-5,b-5, 10, 10);
             if(j){
+                qDebug("%i %i %i", data->vals[i].vals[j].key, a, d);
                 paint.drawLine(a,b,d,e);
             }
             d=a;

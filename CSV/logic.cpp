@@ -16,8 +16,9 @@ int initialization(AppContext* context, AppParams* params){
     params->queue=initQueue();
     params->DArray.size=0;
     params->DArray.rows=(Row*)malloc(0);
-    params->data.vals=(counteredList*)malloc(sizeof(void*));
-    params->data.count=0;
+    params->data=(dataForGrap*)malloc(sizeof(void*));
+    params->data->vals=(counteredList*)malloc(sizeof(void*)*0);
+    params->data->count=0;
     return OK;
 }
 
@@ -82,7 +83,8 @@ int openFile(AppContext* context, AppParams* params){
 }
 
 int sortData(AppContext* context, AppParams* params){
-    dataForGrap* data=&params->data;
+    dataForGrap* data=(dataForGrap*)malloc(sizeof(dataForGrap));//&params->data;
+    data->count=0;
     Node* curVal= params->queue.head;
     int ind;
     counteredList* list;
@@ -141,6 +143,7 @@ int sortData(AppContext* context, AppParams* params){
         list->vals[list->count++].key=curVal->data.year;
 
     }
+    params->data=data;
     return OK;
 }
 
