@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QFrame>
+#include <QKeyEvent>
 #include <QMainWindow>
 #include <drawframe.h>
 #include<libraries/mystring.h>
@@ -22,11 +23,18 @@ public:
     AppParams params;
     AppContext context;
     DrawFrame canvas;
+    void keyPressEvent(QKeyEvent *event);
 
+
+private slots:
+    void validationCheck();
 private:
+    void addRegion();
     void changeFile();
     void openFile();
     void displayData();
+    void changeCurRegion(int ind);
+    void updateList();
     Ui::MainWindow *ui;
 };
 

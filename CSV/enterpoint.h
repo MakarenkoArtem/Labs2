@@ -11,12 +11,15 @@ enum Operation {
     LoadData,
     DisplayData,
     Change,
-    SortData
+    SortData,
+    AddRegion,
+    DelRegion
 };
 
 enum Errors{
     OK,
-    FileNotFound=-50
+    FileNotFound=-50,
+    Error
 };
 
 

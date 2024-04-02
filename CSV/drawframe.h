@@ -12,10 +12,10 @@ class DrawFrame : public QWidget
     Q_OBJECT
 public:
     int minRow, maxRow, minCol, maxCol, countVals;
-    dataForGrap* data;
+    DataForGrap* data;
     char* titleCol, *titleRow;
     explicit DrawFrame(QWidget *parent = nullptr);
-    void updateFrame(dataForGrap* newData);
+    void updateFrame(DataForGrap* newData);
 private:
     void paintEvent(QPaintEvent *event) override;
 

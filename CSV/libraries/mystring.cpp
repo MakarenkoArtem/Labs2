@@ -3,7 +3,7 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 #define OK 0
-#define Error -1
+#define Error -4
 #define IndexOutOfRange -2
 #define MemoryError -3
 /*
@@ -12,6 +12,11 @@
 #define LineFeedSymbol '\n'
 #define CarriageReturnSymbol '\r'
 */
+int strInListStr(char** list, int n, char* str){
+    if (n<0){return Error;}
+    for(;n;){if (compareStr(list[--n], str)){return n;}}
+    return -1;
+}
 
 void freeStr(char* str) {
     //qDebug("freeStr %s", str);

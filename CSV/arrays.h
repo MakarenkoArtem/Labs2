@@ -8,21 +8,21 @@ struct Row {
     char* region;
     float npg, birth_rate, death_rate, gdw, urbanization;
 };
-struct numInList{
+struct NumInList{
     int key;
     float val;
 };
 
-struct counteredList{
+struct CounteredList{
     int compation;
     char* region;
     int count;
-    numInList* vals;
+    NumInList* vals;
 };
 
-struct dataForGrap{
+struct DataForGrap{
     int count;
-    counteredList* vals;
+    CounteredList* vals;
 };
 
 struct Node {
@@ -88,15 +88,20 @@ void clearListString(ListStrings* list);
 
 struct AppContext{
     char* file;
-    char* region;
+    char* addRegion;
+    ListStrings activeRegions;
     int column;
+    int minYear, maxYear;
+    int dynamMinYear, dynamMaxYear;
+    int curRegion;
 };
 
 struct AppParams{
+    ListStrings regions;
     ListStrings titles;
     AllData DArray;
     Queue queue;
     StatisticData vals;
-    dataForGrap* data;
+    DataForGrap* data;
 };
 #endif

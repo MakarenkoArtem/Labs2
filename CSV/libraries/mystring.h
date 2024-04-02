@@ -43,6 +43,7 @@ void* reallocList(void* str, int count, int sizeOfType);
 void* mallocList(int count, int sizeOfType);
 void freeStr(char* str);
 void freeMatrixStr(char** matrix, int rows);
+int strInListStr(char** list, int n, char* str);
 //gcc -c main.c libraries/mystring.c
 //gcc -o main main.o mystring.o -lm
 //fseek(file, +-step, cur_

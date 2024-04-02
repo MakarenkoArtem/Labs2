@@ -1,6 +1,6 @@
 #include "logic.h"
 
-#define Error -1
+#define ErrorStrFromFile -1
 
 void freeMatrix(void** matrix, int rows) {
     for (int i = 0; i < rows; ++i) {
@@ -10,14 +10,19 @@ void freeMatrix(void** matrix, int rows) {
 }
 
 int initialization(AppContext* context, AppParams* params){
+    context->maxYear=0;
+    context->minYear=0;
     context->file=createNewString(0, ' ');
-    context->region=createNewString(0, ' ');
+    context->activeRegions.titles=(char**)malloc(0);
+    context->activeRegions.count=0;
+    //context->region=createNewString(0, ' ');
+    params->regions.titles=split((char*)"", (char*)"/", &params->regions.count);
     params->titles.titles=split((char*)"", (char*)"/", &params->titles.count);
     params->queue=initQueue();
     params->DArray.size=0;
     params->DArray.rows=(Row*)malloc(0);
-    params->data=(dataForGrap*)malloc(sizeof(void*));
-    params->data->vals=(counteredList*)malloc(sizeof(void*)*0);
+    params->data=(DataForGrap*)malloc(sizeof(void*));
+    params->data->vals=(CounteredList*)malloc(sizeof(void*)*0);
     params->data->count=0;
     return OK;
 }
@@ -36,11 +41,15 @@ int openFile(AppContext* context, AppParams* params){
     params->titles.titles = split(line, (char*)",", &params->titles.count);
     freeStr(line);
     line = getStrFromFile(f);
+    context->minYear==NULL;
     int count, i=0, errors=0,allCheks;
     Row row;//!feof(f) &&
     char* base;
-    while (*line != (char)Error){
-        qDebug("%i",++i);
+    clearListString(&params->regions);
+    params->regions.titles=split((char*)"", (char*)"/", &params->regions.count);
+    params->regions.count=0;
+    while (*line != (char)ErrorStrFromFile){
+        ++i;
         values = split(line, (char*)",", &count);
         freeStr(line);
         line = getStrFromFile(f);
@@ -77,17 +86,38 @@ int openFile(AppContext* context, AppParams* params){
         row.urbanization=strToFloat(values[6]);
         dynamicAddRow(&params->DArray, row, params->DArray.size);
         freeMatrix((void**)values, count);
+        if(context->minYear==NULL){
+            context->minYear=row.year;
+            context->maxYear=row.year;
+        }else if(context->minYear> row.year){
+            context->minYear=row.year;
+        }else if(context->maxYear<row.year){
+            context->maxYear=row.year;
+        }
+        if (strInListStr(params->regions.titles, params->regions.count, row.region)==-1){
+            params->regions.titles=(char**)realloc(params->regions.titles, ++params->regions.count*sizeof(char*));
+            params->regions.titles[params->regions.count-1]=row.region;
+        }
     };
+    if(context->minYear==NULL){
+        context->minYear=0;
+        context->maxYear=0;}
+    context->dynamMaxYear=context->maxYear;
+    context->dynamMinYear=context->minYear;
     fclose(f);
+    clearListString(&context->activeRegions);
+    context->activeRegions.titles=(char**)malloc(0);
+    context->activeRegions.count=0;
     return errors;
 }
 
 int sortData(AppContext* context, AppParams* params){
-    dataForGrap* data=(dataForGrap*)malloc(sizeof(dataForGrap));//&params->data;
+    DataForGrap* data=(DataForGrap*)malloc(sizeof(DataForGrap));//&params->data;
     data->count=0;
+    data->vals=(CounteredList*)malloc(sizeof(CounteredList)*(data->count));
     Node* curVal= params->queue.head;
     int ind;
-    counteredList* list;
+    CounteredList* list;
     for(;curVal!=NULL;curVal=curVal->next){
         ind=0;
         for (;ind<data->count;++ind){
@@ -96,50 +126,49 @@ int sortData(AppContext* context, AppParams* params){
             }}
         list=data->vals+ind;
         if (ind==data->count){
-            data->vals=(counteredList*)realloc(data->vals, sizeof(counteredList)*(++data->count));
+            data->vals=(CounteredList*)realloc(data->vals, sizeof(CounteredList)*(++data->count));
             list=data->vals+ind;
             list->count=0;
             list->region=copyStr(curVal->data.region);
             list->compation=16;
-            list->vals=(numInList*)malloc(sizeof(numInList)*list->compation);
+            list->vals=(NumInList*)malloc(sizeof(NumInList)*list->compation);
         }
         if(list->count==list->compation){
             list->compation*=2;
-            list->vals=(numInList*)realloc(list->vals, sizeof(numInList)*list->compation);
+            list->vals=(NumInList*)realloc(list->vals, sizeof(NumInList)*list->compation);
         }
         list=data->vals+ind;
         switch(context->column){
-        case 1:{
+        case Year:{
             list->vals[list->count].val=(float)curVal->data.year;
             break;
         }
-        case 2:
+        case Region:
             break;
-        case 3:{
+        case Npg:{
             list->vals[list->count].val=curVal->data.npg;
             break;
         }
-        case 4:{
+        case Birth_rate:{
             list->vals[list->count].val=curVal->data.birth_rate;
             break;
         }
-        case 5:{
+        case Death_rate:{
             list->vals[list->count].val=curVal->data.death_rate;
             break;
         }
-        case 6:{
+        case Gdw:{
             list->vals[list->count].val=curVal->data.gdw;
             break;
         }
-        case 7:{
+        case Urbanization:{
             list->vals[list->count].val=curVal->data.urbanization;
             break;
         }
         define:{
             list->vals[list->count].val=0;
             break;
-        }
-        }
+        }}
         list->vals[list->count++].key=curVal->data.year;
 
     }
@@ -155,32 +184,32 @@ int displayData(AppContext* context, AppParams* params){
     params->vals.minVal=0.0;
     List* l=init(curVal);
     for(int i=0;i<params->DArray.size;++i){
-        if(compareStr(context->region, (char*)"") || compareStr(context->region, params->DArray.rows[i].region)){
+        if(context->dynamMinYear <= params->DArray.rows[i].year && context->dynamMaxYear >= params->DArray.rows[i].year && (context->activeRegions.count==0 || -1!=strInListStr(context->activeRegions.titles, context->activeRegions.count, params->DArray.rows[i].region))){
             push(&params->queue, params->DArray.rows[i]);
             switch(context->column){
-                case 1:{
+                case Year:{
                     curVal=(float)params->DArray.rows[i].year;
                     break;
                 }
-                case 2:
+                case Region:
                     break;
-                case 3:{
+                case Npg:{
                     curVal=params->DArray.rows[i].npg;
                     break;
                 }
-                case 4:{
+                case Birth_rate:{
                     curVal=params->DArray.rows[i].birth_rate;
                     break;
                 }
-                case 5:{
+                case Death_rate:{
                     curVal=params->DArray.rows[i].death_rate;
                     break;
                 }
-                case 6:{
+                case Gdw:{
                     curVal=params->DArray.rows[i].gdw;
                     break;
                 }
-                case 7:{
+                case Urbanization:{
                     curVal=params->DArray.rows[i].urbanization;
                     break;
                 }
@@ -201,5 +230,20 @@ int displayData(AppContext* context, AppParams* params){
     }
     params->vals.averageVal=getOnIndex(l, l->size/2)->data;
     deleteList(l);
+    return OK;
+}
+
+int addRegion(AppContext* context, AppParams* params){
+    if (!(-1==strInListStr(context->activeRegions.titles, context->activeRegions.count, context->addRegion) //уже есть в отображаемом списке
+            && -1!=strInListStr(params->regions.titles, params->regions.count, context->addRegion)))  {    //нет такого региона
+        return Error;}
+    context->activeRegions.titles=(char**)realloc(context->activeRegions.titles, ++context->activeRegions.count*sizeof(char*));
+    context->activeRegions.titles[context->activeRegions.count-1]=context->addRegion;
+    return OK;
+}
+
+int delRegion(AppContext* context, AppParams* params){
+    if(context->curRegion<0){return Error;}
+    delStrInList(context->activeRegions.titles, context->curRegion, context->activeRegions.count--);
     return OK;
 }

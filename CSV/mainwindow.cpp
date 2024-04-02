@@ -1,18 +1,32 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include<QFileDialog>
+#include<QSpinBox>
 
+
+
+int setComboBox(QComboBox* box, ListStrings* data){
+    box->clear();
+    for(int i=0;i<data->count;box->addItem(QString(data->titles[i++])));
+    return OK;}
+int setListWidget(QListWidget* list, ListStrings* data){
+    list->clear();
+    for(int i=0;i<data->count;list->addItem(QString(data->titles[i++])));
+    return OK;}
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
-    canvas;
     ui->gridLayout->replaceWidget(ui->frame, &canvas);
     delete ui->frame;
     connect(ui->toolButton, &QToolButton::clicked, this, &MainWindow::changeFile);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::openFile);
     connect(ui->pushButton_2, &QPushButton::clicked, this, &MainWindow::displayData);
-
-
+    connect(ui->minYear, SIGNAL(valueChanged(int)), this, SLOT(validationCheck()));
+    connect(ui->maxYear, SIGNAL(valueChanged(int)), this, SLOT(validationCheck()));
+    connect(ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(validationCheck()));
+    connect(ui->listWidget, &QListWidget::currentRowChanged, this, &MainWindow::changeCurRegion);
+    //connect(ui->listWidget, static_cast<bool(QWidgetList::*)(int)>(&QWidgetList::removeOne), this, &MainWindow::removeRegion);
+    connect(ui->addRegion, &QPushButton::clicked, this, &MainWindow::addRegion);
     int ans = doOperation(Initialization, &context, &params);
     canvas.updateFrame(params.data);
     if (ans!=OK){
@@ -21,8 +35,48 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     }
 }
 
-MainWindow::~MainWindow()
-{
+
+void MainWindow::addRegion(){
+    context.addRegion=copyStr((char*)ui->inputRegion->currentText().toStdString().c_str());
+    ui->label_4->clear();
+    if(doOperation(AddRegion, &context, &params)){
+        ui->label_4->setText("Такого региона нет\nили он уже просматривается");
+        return;
+    }
+    ui->listWidget->addItem(QString(context.activeRegions.titles[context.activeRegions.count-1]));
+    ui->inputRegion->removeItem(ui->inputRegion->currentIndex());
+    //setListWidget(ui->listWidget, &context.activeRegions);
+}
+
+void MainWindow::changeCurRegion(int ind){
+    context.curRegion=ind;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event){
+    if (event->key()==Qt::Key_Delete && OK==doOperation(DelRegion, &context, &params)){
+        QListWidgetItem* item= ui->listWidget->takeItem(context.curRegion);
+        ui->inputRegion->addItem(item->text());
+        delete item;
+        ui->listWidget->setCurrentRow(context.curRegion);
+    }
+}
+
+
+void MainWindow::validationCheck(){
+    context.column=ui->comboBox->currentIndex();
+    int dynamMinYear=ui->minYear->value();
+    int dynamMaxYear=ui->maxYear->value();
+    if (dynamMaxYear<dynamMinYear){
+        ui->maxYear->setValue(dynamMinYear);
+        ui->label_4->setText("Ошибка в годах,\nно я уже поправил)");
+    }
+}
+
+/*MainWindow::changeListRegions(int ind){
+
+}
+*/
+MainWindow::~MainWindow(){
     freeStr(context.file);
     delete ui;
 }
@@ -43,10 +97,15 @@ void MainWindow::openFile(){
         mes=join((char**)s, 4,(char*)" ");
         freeStr(a);
         freeStr(b);
+        ui->maxYear->setValue(context.dynamMaxYear);
+        ui->minYear->setValue(context.dynamMinYear);
     }}
+    setComboBox(ui->inputRegion, &params.regions);
+    setComboBox(ui->comboBox, &params.titles);
     ui->label_4->setText(mes);
     freeStr(mes);
 }
+
 QTableWidgetItem* printCell(char* str){
     return new QTableWidgetItem(str);
 }
@@ -78,29 +137,19 @@ int printTitles(ListStrings* titles, QTableWidget* table){
     return OK;}
 
 void MainWindow::displayData(){
-    context.column = ui->spinBox->value();
-    freeStr(context.region);
-    context.region=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
-    /*if(compareStr(context.region, (char*)"")){
-            context.column=-1;
-    }*/
-    //context.region=copyStr(reg);
-    int help= context.column;
-    context.column=1;
-    doOperation(DisplayData, &context, &params);
-    canvas.maxRow=params.vals.maxVal;
-    canvas.minRow=params.vals.minVal;
-    context.column=help;
+    context.dynamMinYear=ui->minYear->value();
+    context.dynamMaxYear=ui->maxYear->value();
+    //context.column = ui->spinBox->value();
+    //freeStr(context.region);
+    //context.region=copyStr((char*)ui->lineEdit_2->text().toStdString().c_str());
+    canvas.maxRow=context.dynamMaxYear;
+    canvas.minRow=context.dynamMinYear;
     doOperation(DisplayData, &context, &params);
     canvas.maxCol=params.vals.maxVal;
     canvas.minCol=params.vals.minVal;
     doOperation(SortData, &context, &params);
     Row row;
     ui->tableWidget->clear();
-    //ui->tableWidget->setUpdatesEnabled(true);
-    //ui->tableWidget_2->setUpdatesEnabled(true);
-    //QStringList headerLabels;
-    //headerLabels << "year" << "region" << "npg" << "birth_rate" << "death_rate" << "gdw" << "urbanization";
     printTitles(&params.titles, ui->tableWidget);
     //ui->tableWidget->setHorizontalHeaderLabels(headerLabels);
     ui->tableWidget->setRowCount(params.queue.size);

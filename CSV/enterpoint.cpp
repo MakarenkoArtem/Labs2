@@ -10,6 +10,10 @@ int doOperation(int operation, AppContext* context, AppParams* params){//char* f
         return displayData(context, params);
     case SortData:
         return sortData(context, params);
+    case AddRegion:
+        return addRegion(context, params);
+    case DelRegion:
+        return delRegion(context, params);
     /*case Change:{
         int t= changing(data, newData);
         if (t){return t;}
