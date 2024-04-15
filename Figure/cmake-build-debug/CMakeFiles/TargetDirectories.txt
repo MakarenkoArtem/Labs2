@@ -1,0 +1,3 @@
+/home/artem/Artem/C++/Labs2/Figure/cmake-build-debug/CMakeFiles/Figure.dir
+/home/artem/Artem/C++/Labs2/Figure/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/artem/Artem/C++/Labs2/Figure/cmake-build-debug/CMakeFiles/rebuild_cache.dir
