@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-
+#include<libraries/mystring.h>
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>

@@ -11,7 +11,7 @@ class DrawFrame : public QWidget
 {
     Q_OBJECT
 public:
-    int minRow, maxRow, minCol, maxCol, countVals;
+    double minRow, maxRow, minCol, maxCol, countVals;
     DataForGrap* data;
     char* titleCol, *titleRow;
     explicit DrawFrame(QWidget *parent = nullptr);
