@@ -14,95 +14,128 @@ class list;
 
 template<typename T>
 struct Node {
-    int val;
+    T val;
     Node *next;
 };
 
 template<typename T>
-class Iterator : public std::iterator<std::random_access_iterator_tag, T> {
-
-private:
-    list<T> *container_;
-public:
+class ConstIterator : public std::iterator<std::random_access_iterator_tag, T> {
+protected:
+    const list<T> *container_;
     Node<T> *val;
-    int index;
 
-    Iterator(list<T> &container_obj) : container_(&container_obj),
-                                       val(container_obj.head),
-                                       index(0) {};
+    ConstIterator(const list<T> &container_obj, Node<T> *val) :
+            container_(&container_obj),
+            val(val) {};
+public:
+    ConstIterator(const list<T> &container_obj) : container_(&container_obj),
+                                                  val(container_obj.head) {};
 
-    Iterator<T> next();
+    ConstIterator<T> next() const;
 
     T value();
 
     bool is_end();
 
-    Iterator<T> &operator++();
+    ConstIterator<T> &operator++() const;
 
-    bool operator==(Iterator<T> &b);
+    bool operator==(const ConstIterator<T> &b);
 
-    bool operator!=(Iterator<T> &b);
+    bool operator!=(const ConstIterator<T> &b);
 
     T &operator*();
 
-    Iterator<T> operator+(const int num);
+    ConstIterator<T> operator+(const int num) const;
+};
+
+template<typename T>
+class Iterator : public ConstIterator<T> {
+public:
+
+    Iterator(list<T> &container_obj) : ConstIterator<T>(container_obj) {};
+
+    void operator=(const T &val);
+
+    Iterator<T> operator+(int num);
+
+    Iterator<T> next();
+
+};
+
+template<typename T>
+ConstIterator<T> ConstIterator<T>::next() const {
+    if (val->next == nullptr) {
+        throw std::out_of_range("");
+    }
+    return ConstIterator<T>(*container_, val->next);
 };
 
 template<typename T>
 Iterator<T> Iterator<T>::next() {
-    if (val->next == nullptr) {
+    if (this->val->next == nullptr) {
         throw std::out_of_range("");
     }
-    val = val->next;
-    ++index;
+    this->val = this->val->next;
     return *this;
 };
 
 template<typename T>
-T Iterator<T>::value() {
+T ConstIterator<T>::value() {
     return val->val;
 }
 
 template<typename T>
-bool Iterator<T>::is_end() {
+bool ConstIterator<T>::is_end() {
     return val->next == nullptr;
 }
 
 template<typename T>
-Iterator<T> &Iterator<T>::operator++() {
-    return next();
-};
+ConstIterator<T> &ConstIterator<T>::operator++()const {
+    *this = next();
+    return *this;
+}
 
 template<typename T>
-T &Iterator<T>::operator*() {
+T &ConstIterator<T>::operator*() {
     return val->val;
 }
 
 template<typename T>
-bool Iterator<T>::operator==(Iterator<T> &b) {
-    return *this == b;
-};
+bool ConstIterator<T>::operator==(const ConstIterator<T> &b) {
+    return this->val == b.val;
+}
 
 template<typename T>
-bool Iterator<T>::operator!=(Iterator<T> &b) {
-    return !(this == b);
-};
+bool ConstIterator<T>::operator!=(const ConstIterator<T> &b) {
+    return !(*this == b);
+}
 
 template<typename T>
-Iterator<T> Iterator<T>::operator+(int num) {
-    while (num--) {
-        if (val->next == nullptr) {
-            throw std::out_of_range("Iterator out of range");
-        }
+ConstIterator<T> ConstIterator<T>::operator+(const int num) const {
+    for (int i = 0; i != num; ++i) {
+        ++(*this);
+    }
+    return *this;
+}
+
+template<typename T>
+Iterator<T> Iterator<T>::operator+(const int num) {
+    for (int i = 0; i != num; ++i) {
         next();
     }
     return *this;
 }
 
 template<typename T>
+void Iterator<T>::operator=(const T &val) {
+    this->val->val = val;
+}
+
+
+template<typename T>
 class list {
 
-    friend class Iterator<T>;
+    friend class ConstIterator<T>;
 
 protected:
     Node<T> *head;
@@ -120,7 +153,15 @@ public:
 
     list<T> &operator=(const list<T> &lst);
 
+    int get_length() const;
+
     void add(const T &elem);
+
+    void add_range(const list<T> &lst);
+
+    void add_range(T *arr, int size);
+
+    void set_elem(int index, const T &elem);
 
     T &get_elem(int index);
 
@@ -130,7 +171,11 @@ public:
 
     Iterator<T> begin();
 
+    ConstIterator<T> cbegin() const;
+
     Iterator<T> end();
+
+    ConstIterator<T> cend() const;
 };
 
 template<typename T>
@@ -188,6 +233,11 @@ list<T> &list<T>::operator=(const list<T> &lst) {
 }
 
 template<typename T>
+int list<T>::get_length() const {
+    return sz;
+}
+
+template<typename T>
 void list<T>::add(const T &elem) {
     ++sz;
     if (head == nullptr) {
@@ -200,15 +250,41 @@ void list<T>::add(const T &elem) {
 }
 
 template<typename T>
+void list<T>::add_range(const list<T> &lst) {
+    /*auto tmp = lst.head;
+    for (int i = 0; i != lst.sz; ++i) {
+        add(tmp->val);
+        tmp = tmp->next;
+    }*/
+//    auto it: lst.begin();
+    //for (auto it: lst) {
+    for (auto it = lst.cbegin(); it != lst.cend(); ++it) {
+        add(*it);
+        //++it;
+    }
+}
+
+template<typename T>
+void list<T>::add_range(T *arr, int size) {
+    for (int i = 0; i != size; add(arr[i++]));
+}
+
+template<typename T>
+void list<T>::set_elem(int index, const T &elem) {
+    begin() + index = elem;
+}
+
+template<typename T>
 T &list<T>::get_elem(int index) {
     if (index < 0 || index >= sz) {
         throw std::out_of_range("");
     }
-    auto tmp = head;
+    return *(begin() + index);
+    /*auto tmp = head;
     for (int i = 0; i != index; ++i) {
         tmp = tmp->next;
     }
-    return tmp->val;
+    return tmp->val;*/
 }
 
 template<typename T>
@@ -233,6 +309,12 @@ void list<T>::remove_elem(int index) {
     }
 }
 
+/*
+template<typename T>
+list<T> list<T>::combine(const list<T> &lst){
+    list<T>* tmp =
+}*/
+
 template<typename T>
 T &list<T>::operator[](int index) {
     if (index < 0 || index >= sz) {
@@ -242,7 +324,7 @@ T &list<T>::operator[](int index) {
     for (int i = 0; i < index; ++i) {
         tmp = tmp->next;
     }
-    return (begin() + index).val->val;
+    return *(begin() + index);
 }
 
 template<typename T>
@@ -251,7 +333,18 @@ Iterator<T> list<T>::begin() {
 };
 
 template<typename T>
+ConstIterator<T> list<T>::cbegin() const {
+    return ConstIterator<T>(*this);
+};
+
+template<typename T>
 Iterator<T> list<T>::end() {
     return Iterator<T>(*this) + sz - ((bool) sz);
 };
+
+template<typename T>
+ConstIterator<T> list<T>::cend() const {
+    return ConstIterator<T>(*this) + (sz - ((bool) sz));
+}
+
 #endif //LIST_LIST_H
