@@ -25,6 +25,7 @@ double Triangle::getArea() {
 string Triangle::params() {
     stringstream strStream;
     vector<Point> points = {first, second, third};
+    strStream<<getTitle()<<" ";
     for (int i = 0; i < points.size(); ++i)
         strStream << "Point (" << points[i].x << ", " << points[i].y << ")  ";
     return strStream.str();

@@ -14,12 +14,17 @@
 
 using std::vector;
 
+
 class Menu {
 private:
     vector<Figure *> figures;
-    vector<std::string> funcsTitle = {"Add figure", "Show params", "Show perimeters", "Show areas", "Sort by area",
-                                      "Sort by perimeter", "Delete by index", "Delete figures with big area",
-                                      "Delete figures with big perimeter"};
+    vector<std::string> funcsTitle = {"Add figure", "Show params",
+                                      "Show perimeters", "Show areas",
+                                      "Sort by area",
+                                      "Sort by perimeter", "Delete by index",
+                                      "Delete figures with big area",
+                                      "Delete figures with big perimeter",
+                                      "exit"};
     std::map<int, void (Menu::*)()> funcs = {{1, &Menu::addFigure},
                                              {2, &Menu::params},
                                              {3, &Menu::perimeters},
@@ -29,7 +34,7 @@ private:
                                              {7, &Menu::delFigure},
                                              {8, &Menu::delBigArea},
                                              {9, &Menu::delBigPerimeter}};
-    std::map<int, void (Menu::*)()> addFigs = {{1, &Menu::addCircle},
+    std::map<int, void (Menu::*)(string)> addFigs = {{1, &Menu::addCircle},
                                                {2, &Menu::addTriangle},
                                                {3, &Menu::addRectangle},
                                                {4, &Menu::addPolygon}};
@@ -50,18 +55,20 @@ private:
 
     void addFigure();
 
-    void addCircle();
+    void addCircle(string title);
 
-    void addTriangle();
+    void addTriangle(string title);
 
-    void addRectangle();
+    void addRectangle(string title);
 
-    void addPolygon();
+    void addPolygon(string title);
 
     void params();
 
 public:
     int run();
+
+    ~Menu();
 };
 
 #endif //FIGURE_MENU_H

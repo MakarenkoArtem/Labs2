@@ -51,6 +51,7 @@ double Polygon::perimeter() {
 
 string Polygon::params() {
     stringstream strStream;
+    strStream<<getTitle()<<" ";
     for (int i = 0; i < points.size(); ++i)
         strStream << "Point (" << points[i].x << ", " << points[i].y << ")  ";
     return strStream.str();

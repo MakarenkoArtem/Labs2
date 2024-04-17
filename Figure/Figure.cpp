@@ -4,6 +4,9 @@
 #include "Figure.h"
 
 Figure::Figure(std::string title) : title(title) {};
+string Figure::getTitle(){
+    return title;
+};
 
 string Figure::params() {
     return string("This type firure don't defined");

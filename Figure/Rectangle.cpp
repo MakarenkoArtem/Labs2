@@ -16,6 +16,7 @@ double Rectangle::getArea() {
 
 string Rectangle::params() {
     stringstream strStream;
+    strStream<<getTitle()<<" ";
     strStream << "Point (" << first.x << ", " << first.y << ")   ";
     strStream << "Point (" << second.x << ", " << second.y << ")";
     return strStream.str();

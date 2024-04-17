@@ -16,10 +16,12 @@ using std::stringstream;
 using std::string;
 
 class Figure {
-public:
     string title;
 
-    Figure(string title);
+public:
+
+    explicit Figure(string title);
+    string getTitle();
 
     virtual double getArea() = 0;
 
@@ -37,4 +39,4 @@ std::ostream &operator<<(std::ostream &os, Figure *figure);
 #include "Triangle.h"
 #include "Polygon.h"
 
-#endif //LABS2_FIGUR_H
+#endif //LABS2_FIGURE_H

@@ -16,7 +16,7 @@ double Circle::getArea() {
 
 string Circle::params() {
     stringstream strStream;
-    strStream << "Point (" << point.x << ", " << point.y << ")\n Radius: " << radius;
+    strStream << " "<< getTitle()<< " Point (" << point.x << ", " << point.y << ")\n Radius: " << radius;
     return strStream.str();
 }
 
