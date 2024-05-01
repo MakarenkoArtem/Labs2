@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 
+
 template<typename T>
 class list;
 
@@ -19,164 +20,335 @@ struct Node {
 };
 
 template<typename T>
-class ConstIterator : public std::iterator<std::random_access_iterator_tag, T> {
-protected:
+class Iterator : public std::iterator<std::input_iterator_tag, T> {
+public:
     const list<T> *container_;
     Node<T> *val;
 
-    ConstIterator(const list<T> &container_obj, Node<T> *val) :
-            container_(&container_obj),
-            val(val) {};
-public:
-    ConstIterator(const list<T> &container_obj) : container_(&container_obj),
-                                                  val(container_obj.head) {};
-
-    ConstIterator<T> next() const;
-
-    T value();
-
-    bool is_end();
-
-    ConstIterator<T> &operator++() const;
-
-    bool operator==(const ConstIterator<T> &b);
-
-    bool operator!=(const ConstIterator<T> &b);
-
-    T &operator*();
-
-    ConstIterator<T> operator+(const int num) const;
-};
-
-template<typename T>
-class Iterator : public ConstIterator<T> {
-public:
-
-    Iterator(list<T> &container_obj) : ConstIterator<T>(container_obj) {};
-
-    void operator=(const T &val);
-
-    Iterator<T> operator+(int num);
-
-    Iterator<T> next();
-
-};
-
-template<typename T>
-ConstIterator<T> ConstIterator<T>::next() const {
-    if (val->next == nullptr) {
-        throw std::out_of_range("");
+    Node<T> &getNode() {
+        return *val;
     }
-    return ConstIterator<T>(*container_, val->next);
+
+
+    Iterator(list<T> &container_obj) : container_(&container_obj),
+                                       val(container_obj.head) {};
+
+    Iterator(list<T> &container_obj, Node<T> *val) : container_(&container_obj),
+                                                     val(val) {};
+
+    Iterator(const list<T> &container_obj) : container_(&container_obj),
+                                             val(container_obj.head) {};
+
+    Iterator(const list<T> &container_obj, Node<T> *val) : container_(
+            &container_obj),
+                                                           val(val) {};
+
+    void operator=(T val) {
+        this->val->val = val;
+    }
+
+    Iterator<T> operator+(int num) {
+        if (!num) { return *this; }
+        return this->next() + --num;
+    }
+
+    Iterator<T> next() {
+        if (val == nullptr) {
+            throw std::out_of_range("Iterator out of range");
+        }
+        return Iterator<T>(*container_, val->next);
+    }
+
+    T value() {
+        return val->val;
+    }
+
+    bool is_end() {
+        return val == nullptr;
+    }
+
+    Iterator<T> operator++() {
+        if (val == nullptr) {
+            throw std::out_of_range("");
+        }
+        val = val->next;
+        return *this;
+    }
+
+    bool operator==(Iterator<T> b) {
+        return val == b.val;
+    }
+
+    bool operator!=(Iterator<T> b) {
+        return !(*this == b);
+    }
+
+    T &operator*() {
+        return val->val;
+    }
+
 };
+
+template<typename T>
+class ConstIterator : public Iterator<T> {
+    ConstIterator(const list<T> &container_obj, Node<T> *val) : Iterator<T>(
+            container_obj, val) {};
+public:
+    ConstIterator(const list<T> &container_obj) : Iterator<T>(
+            (list<T> &) container_obj) {};
+
+    ConstIterator<T> operator+(int num) {
+        if (!num) { return *this; }
+        return this->next() + --num;
+    }
+
+    ConstIterator<T> next() const {
+        if (this->val == nullptr) {
+            throw std::out_of_range("Iterator out of range");
+        }
+        return ConstIterator<T>(*this->container_, this->val->next);
+    }
+};
+
+template<typename T>
+class list {
+protected:
+public:
+    Node<T> *head;
+    size_t sz;
+
+    list() : head(nullptr), sz(0) {}
+
+    list(const list<T> &lst) : head(nullptr), sz(lst.sz) {
+        if (!sz) {
+            return;
+        }
+        Node<T> *cur = lst.head;
+        head = new Node<T>{cur->val, nullptr};
+        Node<T> *tmp = head;
+        for (int i = 1; i < lst.sz; ++i) {
+            cur = cur->next;
+            tmp->next = new Node<T>{cur->val, nullptr};
+            tmp = tmp->next;
+        }
+    }
+
+    list(list<T> &&list) : head(list.head), sz(list.sz) {
+        list.head = nullptr;
+        list.sz = 0;
+    }
+
+    explicit list(std::initializer_list<T> lst) : head(nullptr), sz(0) {
+        auto c = begin();
+        for (auto it: lst) {
+            add(it);
+        }
+    }
+
+    ~list() {
+        Node<T> *tmp;
+        while (tmp != nullptr) {
+            tmp = head->next;
+            delete head;
+            head = tmp;
+        }
+    }
+
+    list<T> &operator=(const list<T> &lst) {
+        while (sz) {
+            remove_elem(0);
+        }
+        Node<T> *tmp = lst.head;
+        for (; sz < lst.sz;) {
+            add(tmp);
+            tmp = tmp->next;
+        }
+        return *this;
+    }
+
+    int get_length() const { return sz; }
+
+    void add(const T &elem) {
+        ++sz;
+        if (head == nullptr) {
+            head = new Node<T>{elem, nullptr};
+            return;
+        }
+        (begin() + (sz - 2)).val->next = new Node<T>{elem, nullptr};
+    }
+
+    void add_range(const list<T> &lst) {
+        for (auto it = lst.cbegin(); it != lst.cend(); ++it) {
+            add(*it);
+        }
+    }
+
+    void add_range(T *arr, int size) {
+        for (int i = 0; i != size; add(arr[i++]));
+    }
+
+    void set_elem(int index, const T &elem) {
+        begin() + index = elem;
+    }
+
+    T &get_elem(int index) {
+        if (index < 0 || index >= sz) {
+            throw std::out_of_range("");
+        }
+        return *(begin() + index);
+        /*auto tmp = head;
+        for (int i = 0; i != index; ++i) {
+            tmp = tmp->next;
+        }
+        return tmp->val;*/
+    }
+
+    void remove_elem(int index) {
+        if (index < 0 || index >= sz) {
+            throw std::out_of_range("");
+        }
+        --sz;
+        if (index == 0) {
+            Node<T> *tmp = head;
+            head = head->next;
+            delete tmp;
+        } else {
+            auto t = *((begin() + index).val);
+            (begin() + index + 1).val.next = t.next;
+            delete t;
+        }
+    }
+
+    list<T> combine(const list<T> &lst) {
+        list<T> tmp(*this);
+        for (auto it: lst) {
+            tmp.add(it);
+        }
+        return tmp;
+    }
+
+    void sort(int (*comp)(const T &r1, const T &r2)) {
+        for (int i = sz - 1; i; --i) {
+            for (auto it = begin(); it != begin() + i; ++it) {
+                if (comp(*(it + 1), *it) == 1) {
+                    T val = *it;
+                    it = *(it + 1);
+                    it + 1 = val;
+                }
+            }
+        }
+    }
+
+    int get_index(T &elem) const {
+        int i = 0;
+        for (auto it: this) {
+            if (*it == elem) {
+                return i;
+            }
+            ++i;
+        }
+        return -1;
+    }
+
+    T *to_array() {
+        T *arr = malloc(sizeof(T) * sz);
+        T *a = arr;
+        for (auto it: this) {
+            *(a++) = *it;
+        }
+        return arr;
+    }
+
+    T &operator[](int index) {
+        if (index < 0 || index >= sz) {
+            throw std::out_of_range("");
+        }
+        return *(begin() + index);
+    }
+
+    Iterator<T> begin() {
+        return Iterator<T>(*this);
+    }
+
+    ConstIterator<T> cbegin() const {
+        return ConstIterator<T>(*this);
+    };
+
+    Iterator<T> end() {
+        return Iterator<T>(*this) + sz;
+    };
+
+    ConstIterator<T> cend() const {
+        return ConstIterator<T>(*this) + sz;
+    }
+};
+
+
+/*==========================================================================*/
+/*template<typename T>
+Iterator<T> &Iterator<T>::operator++() {
+    if (val == nullptr) {
+        throw std::out_of_range("Out of range");
+    }
+    val = val->next;
+    return *this;
+    //return Iterator<T>(*container_, val->next);
+};
+
+
+template<typename T>
+T Iterator<T>::value() {
+    return val->val;
+}
+
+template<typename T>
+bool Iterator<T>::is_end() {
+    return val == nullptr;//?
+}
 
 template<typename T>
 Iterator<T> Iterator<T>::next() {
-    if (this->val->next == nullptr) {
-        throw std::out_of_range("");
+    if (val == nullptr) {
+        throw std::out_of_range("Iterator out of range");
     }
-    this->val = this->val->next;
-    return *this;
-};
+    return Iterator<T>(*container_, val->next);
+}
 
 template<typename T>
-T ConstIterator<T>::value() {
+T &Iterator<T>::operator*() {
     return val->val;
 }
 
 template<typename T>
-bool ConstIterator<T>::is_end() {
-    return val->next == nullptr;
+bool Iterator<T>::operator==(Iterator<T> b) {
+    return val == b.val;
 }
 
 template<typename T>
-ConstIterator<T> &ConstIterator<T>::operator++()const {
-    *this = next();
-    return *this;
-}
-
-template<typename T>
-T &ConstIterator<T>::operator*() {
-    return val->val;
-}
-
-template<typename T>
-bool ConstIterator<T>::operator==(const ConstIterator<T> &b) {
-    return this->val == b.val;
-}
-
-template<typename T>
-bool ConstIterator<T>::operator!=(const ConstIterator<T> &b) {
+bool Iterator<T>::operator!=(Iterator<T> b) {
     return !(*this == b);
 }
 
+/*
 template<typename T>
 ConstIterator<T> ConstIterator<T>::operator+(const int num) const {
-    for (int i = 0; i != num; ++i) {
+    return this->Iterator<T>::operator+(num);
+    //return *this;
+}
+
+template<typename T>
+Iterator<T> &Iterator<T>::operator+(int num) {
+    while (num--) {
         ++(*this);
     }
     return *this;
 }
 
 template<typename T>
-Iterator<T> Iterator<T>::operator+(const int num) {
-    for (int i = 0; i != num; ++i) {
-        next();
-    }
-    return *this;
-}
-
-template<typename T>
-void Iterator<T>::operator=(const T &val) {
+void Iterator<T>::operator=(T val) {
     this->val->val = val;
 }
 
-
-template<typename T>
-class list {
-
-    friend class ConstIterator<T>;
-
-protected:
-    Node<T> *head;
-    size_t sz;
-public:
-    list();
-
-    list(const list<T> &lst);
-
-    list(list<T> &&list);
-
-    explicit list(std::initializer_list<T> lst);
-
-    ~list();
-
-    list<T> &operator=(const list<T> &lst);
-
-    int get_length() const;
-
-    void add(const T &elem);
-
-    void add_range(const list<T> &lst);
-
-    void add_range(T *arr, int size);
-
-    void set_elem(int index, const T &elem);
-
-    T &get_elem(int index);
-
-    void remove_elem(int index);
-
-    T &operator[](int index);
-
-    Iterator<T> begin();
-
-    ConstIterator<T> cbegin() const;
-
-    Iterator<T> end();
-
-    ConstIterator<T> cend() const;
-};
 
 template<typename T>
 list<T>::list():head(nullptr), sz(0) {}
@@ -251,16 +423,10 @@ void list<T>::add(const T &elem) {
 
 template<typename T>
 void list<T>::add_range(const list<T> &lst) {
-    /*auto tmp = lst.head;
-    for (int i = 0; i != lst.sz; ++i) {
-        add(tmp->val);
-        tmp = tmp->next;
-    }*/
 //    auto it: lst.begin();
     //for (auto it: lst) {
     for (auto it = lst.cbegin(); it != lst.cend(); ++it) {
         add(*it);
-        //++it;
     }
 }
 
@@ -280,11 +446,6 @@ T &list<T>::get_elem(int index) {
         throw std::out_of_range("");
     }
     return *(begin() + index);
-    /*auto tmp = head;
-    for (int i = 0; i != index; ++i) {
-        tmp = tmp->next;
-    }
-    return tmp->val;*/
 }
 
 template<typename T>
@@ -308,12 +469,10 @@ void list<T>::remove_elem(int index) {
         delete anothertmp;
     }
 }
-
-/*
 template<typename T>
 list<T> list<T>::combine(const list<T> &lst){
     list<T>* tmp =
-}*/
+}
 
 template<typename T>
 T &list<T>::operator[](int index) {
@@ -330,7 +489,7 @@ T &list<T>::operator[](int index) {
 template<typename T>
 Iterator<T> list<T>::begin() {
     return Iterator<T>(*this);
-};
+}
 
 template<typename T>
 ConstIterator<T> list<T>::cbegin() const {
@@ -339,12 +498,12 @@ ConstIterator<T> list<T>::cbegin() const {
 
 template<typename T>
 Iterator<T> list<T>::end() {
-    return Iterator<T>(*this) + sz - ((bool) sz);
+    return Iterator<T>(*this) + sz;
 };
 
 template<typename T>
 ConstIterator<T> list<T>::cend() const {
-    return ConstIterator<T>(*this) + (sz - ((bool) sz));
+    return ConstIterator<T>(*this) + sz;
 }
-
+*/
 #endif //LIST_LIST_H
