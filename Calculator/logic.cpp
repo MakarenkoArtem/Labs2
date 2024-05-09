@@ -2,10 +2,15 @@
 #include "iostream"
 
 LogOperator Sum(1,"+", summ);
-LogOperator Minus(1,"-", minu);
-LogOperator UnoMinus(2,"-", minu);
+LogOperator Minus(1,"-", minu, false, true);
+LogOperator UnoMinus(2,"-", minu, true, false);
 LogOperator Multiplication(2,"*", mult);
 LogOperator Division(2,"/", divi);
+LogOperator Sqrt(3, "sqrt", sqrtFunc, true, false);
+LogOperator Sin(3, "sin", sinFunc, true, false);
+LogOperator Cos(3, "cos", cosFunc, true, false);
+LogOperator Tg(3, "tg", tgFunc, true, false);
+LogOperator Ctg(3, "ctg", ctgFunc, true, false);
 LogOperator Stub(-1, "?", stub);
 LogOperator BracketOpen(0, "(", stub);
 LogOperator BracketClose(0, ")", stub);
@@ -65,7 +70,9 @@ int digitToNums(AppContext* context, AppParams* params){
             }else if(str=="+"){
                 operat=&Sum;
             }else if(str=="-"){
-                if(num){operat=&Minus;
+                if(num || (i && params->input[i-1]!="(")){
+                    //если перед минусом есть число или оператор но не "("
+                    operat=&Minus;
                 }else{operat=&UnoMinus;}
             }else if(str=="*"){
                 operat=&Multiplication;
@@ -74,19 +81,31 @@ int digitToNums(AppContext* context, AppParams* params){
             }else if(str=="("){
                 operat=&BracketOpen;
             }else if(str==")"){
-                operat=&BracketClose;}
+                operat=&BracketClose;
+            }else if(str=="sqrt"){
+                operat=&Sqrt;
+            }else if(str=="sin"){
+                operat=&Sin;
+            }else if(str=="сos"){
+                operat=&Cos;
+            }else if(str=="tg"){
+                operat=&Tg;
+            }else if(str=="ctg"){
+                operat=&Ctg;
+            }else{throw std::invalid_argument("Не реализованный оператор");}
             num=false;
             //==============filling list=============
             int j, indSet = params->list.size();//вставляем операторы на этот индекс и дальше
             for(j=params->stack.size()-1; j!=-1;--j){
                 if(params->stack[j]==&BracketOpen){
                     if(operat==&BracketClose){
-                    params->stack.erase(params->stack.begin()+j);}
+                        params->stack.erase(params->stack.begin()+j);
+                    }else if(operat==&Stub){//если при винальном проходе осталась скобка
+                        throw std::logic_error("Есть не закрытая скобка");
+                    }
                     break;
                 }
                 if(operat==&BracketOpen){break;}//если открывающая скобка, то ничего не записываем в лист
-                if(params->stack[j]==&BracketClose){
-                    throw std::logic_error("Есть не закрытая скобка");}
                 if(operat==&BracketClose || params->stack[j]->priority>=operat->priority){
                     if(params->stack[j]==&BracketOpen){//если дошли до открывающей скобки
                         if(operat==&BracketClose){//если текущий опертор закрывающая скобка
@@ -123,7 +142,8 @@ int calc(AppContext* context, AppParams* params){
     }
     for(int i=0;i!=params->list.size();++i){
         if(params->list[i].typeOper){
-            if(i==1 || (i>1 &&params->list[i-2].typeOper)){//если перед оператором только один элемент или ..operator, num, operator..
+            if(i==1 || (i>1 && params->list[i-2].typeOper) || (i>0 && params->list[i].value.oper->haveOnlyOneArgFunc)){//если перед оператором только один элемент /
+                //..operator, num, operator.. / оператор принимает только один аргумент
                 params->list[i].value.val=params->list[i].value.oper->calc(params->list[i-1].value.val);
                 params->list[i].typeOper=false;
                 params->list.erase(params->list.begin()+--i);
@@ -142,3 +162,11 @@ int calc(AppContext* context, AppParams* params){
     return OK;
 }
 
+
+int revFunc(AppContext* context, AppParams* params){
+    params->input.insert(params->input.begin(), "(");
+    params->input.insert(params->input.begin(), "/");
+    params->input.insert(params->input.begin(), "1");
+    params->input.push_back(")");
+    return OK;
+}

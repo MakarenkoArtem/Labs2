@@ -11,4 +11,5 @@ int addChar(AppContext* context, AppParams* params);
 int delChar(AppContext* context, AppParams* params);
 int digitToNums(AppContext* context, AppParams* params);
 int calc(AppContext* context, AppParams* params);
+int revFunc(AppContext* context, AppParams* params);
 #endif // LOGIC_H

@@ -42,3 +42,36 @@ double divi(int countArgs, double a, double b){
     if(!b){throw std::invalid_argument("Division by zero");}
     return a/b;
 }
+
+double sqrtFunc(int countArgs, double a, double b){
+    if(countArgs!=1){
+        throw std::invalid_argument("Извлечение корня должно иметь 1 аргумент");
+    }
+    return std::sqrt(b);
+}
+
+double sinFunc(int countArgs, double a, double b){
+    if(countArgs!=1){
+        throw std::invalid_argument("Синунс должен иметь 1 аргумент");
+    }
+    return std::sin(b);
+}
+
+double cosFunc(int countArgs, double a, double b){
+    if(countArgs!=1){
+        throw std::invalid_argument("Косинус должен иметь 1 аргумент");
+    }
+    return std::cos(b);
+}
+double tgFunc(int countArgs, double a, double b){
+    if(countArgs!=1){
+        throw std::invalid_argument("Тангенс должен иметь 1 аргумент");
+    }
+    return std::tan(b);
+}
+double ctgFunc(int countArgs, double a, double b){
+    if(countArgs!=1){
+        throw std::invalid_argument("Котангенс должен иметь 1 аргумент");
+    }
+    return 1/std::tan(b);
+}

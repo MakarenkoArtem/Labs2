@@ -24,6 +24,7 @@ struct AppContext{
 };
 
 struct AppParams{
+    double memory=0;
     vector<string> input;
     string output="";
     vector<Node> list;

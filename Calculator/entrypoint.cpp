@@ -25,5 +25,8 @@ int doOperation(int operation, AppContext* context, AppParams* params){
         }
         for(;params->list.size();params->list.pop_back());
         return ans;
+    case RevFunc:
+        return revFunc(context, params);
+
 }
 }

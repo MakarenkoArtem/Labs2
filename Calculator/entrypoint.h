@@ -8,7 +8,8 @@
 enum Operation {
     AddChar,
     DelChar,
-    Calc
+    Calc,
+    RevFunc
 };
 
 int doOperation(int operation, AppContext* context, AppParams* params);
