@@ -4,6 +4,9 @@ double summ(int countArgs, double a, double b){
         throw std::invalid_argument("Сумма должна иметь 2 аргумента");
     }
     double res = a+b;
+    if(std::isinf(res)){
+        throw std::out_of_range("Число слишком большое");
+    }
     if (a>0 && b>0 && (res <a || res<b)){
         throw std::out_of_range("Число больше размеров double");
     }
@@ -30,6 +33,9 @@ double mult(int countArgs, double a, double b){
     }
     long double resLong = a*b;
     double res = a*b;
+    if(std::isinf(res)){
+        throw std::out_of_range("Число слишком большое");
+    }
     if (resLong!=res){
         throw std::out_of_range("Число больше размеров double");
     }

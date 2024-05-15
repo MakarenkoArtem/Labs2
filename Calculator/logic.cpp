@@ -29,10 +29,11 @@ int delChar(AppContext* context, AppParams* params){
 bool isDigit(string str){
     return 0<=str[0]-'0' && str[0]-'0'<10;
 }
+
 int digitToNums(AppContext* context, AppParams* params){
     bool num=false;
     int ind,point =-1;
-    long int val;
+    double val;//long int val;
     string str;
     params->input.push_back("?");//добавляю элемент чтобы в конце выгурзить все операторы
     LogOperator* operat;
@@ -50,7 +51,6 @@ int digitToNums(AppContext* context, AppParams* params){
             }
         }else if(str=="."){
             if(!num){            //params->input[i-1]=std::to_string(val/pow(10, point==-1?0:point));
-
                 throw std::invalid_argument("у числа нет целой части");
             }
             if(point!=-1){
@@ -61,6 +61,9 @@ int digitToNums(AppContext* context, AppParams* params){
             if(num){
                 node.typeOper=false;
                 node.value.val=val/pow(10, point==-1?0:point);
+                if(std::isinf(node.value.val)){
+                    throw std::out_of_range("Число слишком большое");
+                }
                 params->list.push_back(node);
                 point=-1;}
             //============end add num==============

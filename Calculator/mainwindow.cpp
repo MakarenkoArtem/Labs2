@@ -35,7 +35,7 @@ string join(vector<string> list) {
     return str;
 }
 
-void MainWindow::addChar(){
+void MainWindow::addChar(){//если большое число то не обижайтесь на не точность
     setImage("");
     QPushButton *currentButton = qobject_cast<QPushButton*>(sender());
     context.but= currentButton->text().toStdString();
