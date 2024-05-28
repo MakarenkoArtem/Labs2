@@ -92,7 +92,7 @@ long int decToBin(AppParams* params){ //10->2
         params->binaryNum=replace((char*)params->binaryNum, (char*)"1", (char*)"0", -1);
         params->binaryNum=replace((char*)params->binaryNum, (char*)"2", (char*)"1", -1);
         long long int h=(long long int)toUnsignedDec(params->binaryNum, 2)+1;
-        if(h<1 || h>=pow(2, params->memSize*8-1)){return !OK;}
+        //if(h<1 || h>=pow(2, params->memSize*8-1)){return !OK;}
         qDebug("freeStr 16");
         freeStr(params->binaryNum);
         params->binaryNum=unsignedFromDec(h, 2);
@@ -133,7 +133,9 @@ long int binToOther(AppParams* params, int notation){ //2->16
     freeStr(params->otherNum);
     if (lenStr(params->binaryNum)> params->memSize*8){return ValueExceded;}
     long long int h=(long long int)toUnsignedDec(params->binaryNum, 2);
-    if(h<0 || h>=pow(2, params->memSize*8-1)){return !OK;}
+    qDebug("%lli", h);
+    qDebug("%i", pow(2, params->memSize*8-1)-1);
+    if(h/2-2>= pow(2, params->memSize*8-1)-1){return !OK;}
     params->otherNum=unsignedFromDec(h, notation);
     int c=0;
     for(;pow(2, c+1)<= notation; ++c);
@@ -149,7 +151,7 @@ long int otherToBin(AppParams* params, int notation){ //16->2
     qDebug("freeStr 9");
     freeStr(params->binaryNum);
     long long int h=(long long int)toUnsignedDec(params->otherNum, notation);
-    if(h<0 || h>=pow(2, params->memSize*8-1)){return !OK;}
+    //if(h<0 || h>=pow(2, params->memSize*8-1)){return !OK;}
     params->binaryNum=unsignedFromDec(h, 2);
     if (lenStr(params->binaryNum)> params->memSize*8){return ValueExceded;}
     char*s=createNewString(params->memSize*8-lenStr(params->binaryNum), '0');

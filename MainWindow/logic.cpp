@@ -37,7 +37,7 @@ int validation(AppParams* params, AppContext* context){
         }
     }
     freeStr(sysNat);
-    freeStr(context->num);
+    //freeStr(context->num);
     return result;
 }
 
@@ -77,4 +77,4 @@ int counting(AppParams* params, AppContext* context){
         break;
     }/
     return 0;
-}*/
+}s*/

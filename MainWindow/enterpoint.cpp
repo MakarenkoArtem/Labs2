@@ -10,16 +10,22 @@ int doOperation(Operation operation, AppParams* params, AppContext* context){
         char* otherNum = copyStr(params->otherNum);
         char* val = copyStr(params->val);
         int decimalNum = params->decimalNum;
+        int g=validation(params, context);
+        if(g){
+            //freeStr(context->num);
+            return g;}
         int c = counting(params, context);
         qDebug("fff 2 %i", c);
-        if(c!=ValueExceded){freeStr(params->binaryNum);}
-        freeStr(params->otherNum);
+        if(c!=ValueExceded){
+            freeStr(params->binaryNum);}
+        //freeStr(params->otherNum);
         freeStr(params->val);
         params->binaryNum=binaryNum;
         params->otherNum=otherNum;
         params->val=val;
         params->decimalNum=decimalNum;
-        return c?c:validation(params, context);
+        //freeStr(context->num);
+        return c;
     }
     case Counting:{
         //doOperation(Validation, params, context);
